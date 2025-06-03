@@ -1,16 +1,20 @@
 body{
-    background-color: rgb(255, 253, 150);
+    background-color:rgb(256,252,204);
+    font-family: Arial, Helvetica, sans-serif;
 }
-h3{
-    background-color: green;
+h2{
+    background-color:rgb(4,156,4);
     color:white;
-    padding: 2pt;
+    padding-left: 12pt;
+    padding-top: 3px;
 }
 h1{
-    color: whitesmoke;
-    background-color: brown;
+    color: rgb(241, 235, 184);
+    background-color: rgb(156,4,4);
     text-align: center;
-    border-bottom: 8px solid red;
+    border-bottom: 10px solid rgb(204,4,4);
+    letter-spacing: 8pt;
+    font-style: italic;
 }
 .random{
     color:grey;
@@ -20,16 +24,15 @@ table, td{
     background-color: rgb(197, 195, 195);
 }
 img{
-    border: 2px dotted black;
-}
-.uppercase{
-    text-transform: uppercase;
-    font-weight: bold;
+    border: 2px dotted grey;
 }
 .list{
-    color: red;
+    color: rgb(173, 2, 2);
+    font-style: italic;
+    font-size: small;
 }
 a{
-    color: hotpink;
+    color: rgb(167, 62, 114);
     text-decoration: none;
+    font-size: 15px;
 }
