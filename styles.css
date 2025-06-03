@@ -1,0 +1,35 @@
+body{
+    background-color: rgb(255, 253, 150);
+}
+h3{
+    background-color: green;
+    color:white;
+    padding: 2pt;
+}
+h1{
+    color: whitesmoke;
+    background-color: brown;
+    text-align: center;
+    border-bottom: 8px solid red;
+}
+.random{
+    color:grey;
+}
+table, td{
+    border: 1px solid;
+    background-color: rgb(197, 195, 195);
+}
+img{
+    border: 2px dotted black;
+}
+.uppercase{
+    text-transform: uppercase;
+    font-weight: bold;
+}
+.list{
+    color: red;
+}
+a{
+    color: hotpink;
+    text-decoration: none;
+}
