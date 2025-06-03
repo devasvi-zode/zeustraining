@@ -6,14 +6,15 @@ h2{
     background-color:rgb(4,156,4);
     color:white;
     padding-left: 12pt;
-    padding-top: 3px;
+    padding-top: 4px;
+    padding-bottom: 4px;
 }
 h1{
     color: rgb(241, 235, 184);
     background-color: rgb(156,4,4);
     text-align: center;
-    border-bottom: 10px solid rgb(204,4,4);
-    letter-spacing: 8pt;
+    border-bottom: 15px solid rgb(204,4,4);
+    letter-spacing: 10pt;
     font-style: italic;
 }
 .random{
@@ -29,7 +30,7 @@ img{
 .list{
     color: rgb(173, 2, 2);
     font-style: italic;
-    font-size: small;
+    font-size: medium;
 }
 a{
     color: rgb(167, 62, 114);
