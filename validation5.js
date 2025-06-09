@@ -1,5 +1,5 @@
 document.getElementById('loginBtn').addEventListener('click', function () {
-  const schoolTypeSelected = document.querySelector('input[name="school type"]:checked');
+  const schoolTypeSelected = document.querySelector('input[name="schoolType"]:checked');
   const state = document.getElementById('states').value;
   const district = document.getElementById('districts').value;
   const email = document.getElementById('email').value.trim();

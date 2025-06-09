@@ -8,17 +8,32 @@
 </head>
 <body>
     <div class="container">
-        <div class="header">Header 
+        <div class="header">
             <img src="quantum screen assets\icons\logo used in header.svg" alt="logo">
         </div>
         <div class="login">
-            <form id="loginForm">
-                <img src="back.svg" alt="back">
-                <h2>Log in with Quantum</h2>
-                <input type="radio" name="school type" id="district">District
-                <input type="radio" name="school type" id="school">Independent school<br><br>
-                <label>State</label><br>
-                <select id="states">
+            <form id="loginForm" class="form">
+				<div class="loginHeading">
+					<div class="back-icon"><img src="back.svg" alt="back"></div>
+					<div class="heading">Log in with Quantum</div>
+				</div>
+				<br>
+				<div class="radio-group">
+					<div class="radio-row">
+  						<img id="radio1" onclick="selectRadio('radio1')" src="radio-button-off.svg" width="20" height="20" alt="radio 1">
+  						<label for="school-type-district">District</label>
+  						<input type="radio" name="schoolType" id="school-type-district" hidden>
+					</div>
+
+					<div class="radio-row">
+  						<img id="radio2" onclick="selectRadio('radio2')" src="radio-button-off.svg" width="20" height="20" alt="radio 2">
+  						<label for="school-type-independent">Independent school</label>
+  						<input type="radio" name="schoolType" id="school-type-independent" hidden>
+					</div>
+				</div>
+				<br>
+                <label class="state-dis">State*</label><br>
+                <select id="states" required>
                     <option value="ss">Select State</option>
 	                <option value="AL">Alabama</option>
 	                <option value="AK">Alaska</option>
@@ -72,21 +87,47 @@
 	                <option value="WI">Wisconsin</option>
 	                <option value="WY">Wyoming</option>
                 </select><br><br>
-                <label>District</label><br>
+                <label  class="state-dis">District*</label><br>
                 <select id="districts">
                     <option value="">Select District</option>
                 </select><br><br>
-                <input type="email" id="email" placeholder="Usename/Email ID"><br><br>
-                <input type="password" id="password" placeholder="Password"><br><br>
-                <input type="checkbox">Remember Me<br><br>
-                <button id="loginBtn">LOG IN</button>
+				<div class="username">
+					<div class="inputs"><input type="email" id="email" placeholder="Usename/Email ID*" required></div>
+					<div class="link-right"><a href="#" class="forgot">FORGET USERNAME?</a></div>
+				</div><br>
+				<div class="password">
+					<div class="inputs-pass">
+						<input type="password" id="password" placeholder="Password*" required>
+						<img src="preview.svg" alt="preview" class="preview-icon">
+					</div>
+					<div class="link-right"><a href="#" class="forgot">FORGET PASSWORD?</a></div>
+				</div>
+				
+				<div class="box_">
+					<img id="checkbox" onclick="changeBox()" src="checkbox-unchecked.svg" width="20" height="20" alt="Remember me">
+					<label>Remember Me</label>
+				</div>
+				<br>
+				<div class="button-container">
+					<button id="loginBtn">LOG IN</button>
+				</div>
             </form>
+			<script src="radio.js"></script>
+			<script src="checkbox.js"></script>
             <script src="validation5.js"></script>
         </div>
         <div class="footer">
-            <div>About | Contact Us</div>
-            <div><img src="quantum screen assets\icons\logo used in header.svg" alt="logo"> |  Copyright &copy; 2020-2021 Zeus Systems Pvt. Ltd. 
-            All rights reserverd.</div>
+            <div class="abt_contact">
+				<div>About</div>
+				<div class="verticalBar"></div>
+				<div>Contact Us</div>
+			</div>
+			<div class="end">
+				<div><img src="quantum screen assets\icons\logo used in footer.svg" alt="logo"></div>
+				<div class="verticalBar"></div>
+				<div>Copyright &copy; 2020-2021 Zeus Systems Pvt. Ltd.</div> 
+            	<div>All rights reserverd.</div>
+			</div>
         </div>
     </div>
     <script src="script5.js"></script>
