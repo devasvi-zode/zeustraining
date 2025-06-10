@@ -46,7 +46,7 @@ html, body{
     padding:0;
 }
 .menu-1{
-    padding: 20px;
+    padding: 15px;
 }
 .menu-2{
     padding:20px;
@@ -58,7 +58,9 @@ html, body{
 #dashboard{
     margin-left:auto;
 }
-
+#logoHeader{
+    padding-left: 20px;
+}
 .gaps{
     padding:10px;
 }
@@ -234,22 +236,22 @@ select {
  */
 }
 #hamburger{
-    display:none;
-}
-@media all and (max-width: 1024){
-    #hamburger{
         display:none;
     }
-}
 
 @media all and (max-width: 768px){
     #hamburger{
-        display:flex;
+        display:block;
+        padding-right: 10px;
     }
     .menu-1{
         display:none;
     }
     #bell{
         margin-left: auto;
+    }
+    .menu-2{
+        padding:20px;
+        padding-right: 10px;
     }
 }
