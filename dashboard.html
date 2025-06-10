@@ -4,97 +4,252 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quantum Dashboard</title>
+    <link rel="stylesheet" href="s5.css">
 </head>
 <body>
     <div class="container">
         <div class="header">
             <div><img src="quantum screen assets\icons\logo used in header.svg" alt="logo"></div>
-            <div>DASHBOARD</div>
-            <div>CONTENT</div>
-            <div>USERS</div>
-            <div>REPORTS</div>
-            <div>ADMIN</div>
-            <div><img src="quantum screen assets\icons\alerts.svg" alt="alert"></div>
-            <div><img src="quantum screen assets\icons\announcements.svg" alt="announcements"></div>
-            <div><img src="quantum screen assets\icons\account_circle.svg" alt="account circle"></div>
-            <div><img src="quantum screen assets\icons\hamburger-menu.svg" alt="hamburger menu"></div>
+            <div class="menu-1" id="dashboard">DASHBOARD</div>
+            <div class="menu-1">CONTENT</div>
+            <div class="menu-1">USERS</div>
+            <div class="menu-1">REPORTS</div>
+            <div class="menu-1">ADMIN</div>
+            <div class="noti" id="bell">
+                <div class="menu"><img src="quantum screen assets\icons\alerts.svg" alt="alert"></div>
+                <div class="notification">2</div>
+            </div>
+            <div class="gaps"></div>
+            <div class="noti">
+                <div class="menu"><img src="quantum screen assets\icons\announcements.svg" alt="announcements"></div>
+                <div class="notification">1</div>
+            </div>
+            <div class="menu-2"><img src="quantum screen assets\icons\account_circle.svg" alt="account circle"></div>
+            <div class="menu-2"><img src="quantum screen assets\icons\hamburger-menu.svg" alt="hamburger" id="hamburger"></div>
+            <!-- <div><img src="quantum screen assets\icons\hamburger-menu.svg" alt="hamburger menu"></div> -->
         </div>
+
         <div class="content">
-            <div>
-                <div><img src="quantum screen assets\icons\courses.svg" alt="courses">4 Courses</div>
-                <div><img src="quantum screen assets\icons\classes.svg" alt="classes">4 classes</div>
-                <div>Showing 4 of 4 courses</div>
-                <div>
-                    <form>
+            <div class="course-filter">
+                <div class="course-green">
+                    <div class="c_c" id="cc">
+                        <div><img src="quantum screen assets\icons\courses.svg" alt="courses"></div>
+                        <div><b>4</b> Courses</div>
+                    </div>
+                    <div class="c_c">
+                        <div><img src="quantum screen assets\icons\classes.svg" alt="classes"></div>
+                        <div><b>4</b> Classes</div>
+                    </div>
+                </div>
+                <div class="filter">
+                    <div>Showing 4 of 4 courses</div>
+                    <form class="sort_by">
                         <label>Sort By: </label>
                         <select>
-                            <option valye="name">Course Name</option>
+                            <option value="name">Course Name</option>
                         </select>
-                        <label><img src="quantum screen assets\icons\sort.svg" alt="sort"></label>
+                        <img src="quantum screen assets\icons\sort.svg" alt="sort">
                     </form>
-                    <!-- Sort by: Course Name <img src="quantum screen assets\icons\sort.svg" alt="sort"></div> -->
+                </div>
             </div>
-            <hr>
-            <div>
-                <div class="card">
-                    <div class="course cover"><img src="quantum screen assets\images\imageMask.png" alt="course cover"></div>
-                    <div>
+            
+            <div class="course-info">
 
+                <div class="card">
+                    <div class="card-info">
+                        <div>
+                            <div class="course-cover"><img src="quantum screen assets\images\imageMask.png" alt="course cover"></div>
+                        </div>
+                        <div class="C">
+                            <div class="c1">
+                                <div>Acceleration</div>
+                                <div><img src="quantum screen assets\icons\favourite.svg" alt="fav"></div>
+                            </div>
+                            <div class="c2">
+                                <div>Physics</div>
+                                <div class="verticalBar"></div>
+                                <div>Grade 7</div>
+                                <div class="greenPlus">+2</div>
+                            </div>
+                            <div class="c3">
+                                <div>
+                                    <div><b>4</b> Units</div>
+                                </div>
+                                <div>
+                                    <div><b>18</b> Lessons</div>
+                                </div>
+                                <div>
+                                    <div><b>24</b> Topics</div>
+                                </div>
+                            </div>
+                            <div class="c4">
+                                <select>
+                                    <option value="b">Mr. Frank's Class B</option>
+                                </select>
+                            </div>
+                            <div class="c5">
+                                <div>50 Students</div>
+                                <div class="verticalBar"></div>
+                                <div>21-Jan-2020 - 21-Aug-2020</div>
+                            </div>
+                        </div>
                     </div>
-                    <hr>
                     <div>
-                        <img src="quantum screen assets\icons\preview.svg" alt="preview">
-                        <img src="quantum screen assets\icons\manage course.svg" alt="manage course">
-                        <img src="quantum screen assets\icons\grade submissions.svg" alt="grade submission">
-                        <img src="quantum screen assets\icons\reports.svg" alt="reports">
+                        <div class="icons">
+                            <div><img src="quantum screen assets\icons\preview.svg" alt="preview"></div>
+                            <div><img src="quantum screen assets\icons\manage course.svg" alt="manage course"></div>
+                            <div><img src="quantum screen assets\icons\grade submissions.svg" alt="grade submission"></div>
+                            <div><img src="quantum screen assets\icons\reports.svg" alt="reports"></div>
+                        </div>
                     </div>
                 </div>
-                <div class="card">
-                    <div class="course cover"><img src="quantum screen assets\images\imageMask-1.png" alt="course cover"></div>
-                    <div>
 
+                <div class="card">
+                    <div class="card-info">
+                        <div>
+                            <div class="course cover"><img src="quantum screen assets\images\imageMask-1.png" alt="course cover"></div>
+                        </div>
+                        <div class="C">
+                            <div class="c1">
+                                <div>Displacement, Velocity and Speed</div>
+                                <div><img src="quantum screen assets\icons\favourite.svg" alt="fav"></div>
+                            </div>
+                            <div class="c2">
+                                <div>Physics 2</div>
+                                <div class="verticalBar"></div>
+                                <div>Grade 6</div>
+                                <div class="greenPlus">+3</div>
+                            </div>
+                            <div class="c3">
+                                <div>
+                                    <div><b>2</b> Units</div>
+                                </div>
+                                <div>
+                                    <div><b>15</b> Lessons</div>
+                                </div>
+                                <div>
+                                    <div><b>20</b> Topics</div>
+                                </div>
+                            </div>
+                            <div class="c4">
+                                <select>
+                                    <option>No Classes</option>
+                                </select>
+                            </div>
+                        </div>
                     </div>
-                    <hr>
                     <div>
-                        <img src="quantum screen assets\icons\preview.svg" alt="preview">
-                        <img src="quantum screen assets\icons\manage course.svg" alt="manage course">
-                        <img src="quantum screen assets\icons\grade submissions.svg" alt="grade submission">
-                        <img src="quantum screen assets\icons\reports.svg" alt="reports">
+                        <div class="icons">
+                            <div><img src="quantum screen assets\icons\preview.svg" alt="preview"></div>
+                            <div><img src="quantum screen assets\icons\manage course.svg" alt="manage course" class="dim"></div>
+                            <div><img src="quantum screen assets\icons\grade submissions.svg" alt="grade submission" class="dim"></div>
+                            <div><img src="quantum screen assets\icons\reports.svg" alt="reports"></div>
+                        </div>
                     </div>
                 </div>
-                <div class="card">
-                    <div class="course cover"><img src="quantum screen assets\images\imageMask-3.png" alt="course cover"></div>
-                    <div>
 
+                <div class="card">
+                    <div class="card-info">
+                        <div>
+                            <div class="course cover"><img src="quantum screen assets\images\imageMask-3.png" alt="course cover"></div>
+                        </div>
+                        <div class="C">
+                            <div class="c1">
+                                <div>Introduction to Biology: Micro organisms and how they affect the other LIfe Systems in En...</div>
+                                <div><img src="quantum screen assets\icons\favourite.svg" alt="fav"></div>
+                            </div>
+                            <div class="c2">
+                                <div>Biology</div>
+                                <div class="verticalBar"></div>
+                                <div>Grade 4</div>
+                                <div class="greenPlus">+1</div>
+                            </div>
+                            <div class="c3">
+                                <div>
+                                    <div><b>5</b> Units</div>
+                                </div>
+                                <div>
+                                    <div><b>16</b> Lessona</div>
+                                </div>
+                                <div>
+                                    <div><b>22</b> Topics</div>
+                                </div>
+                            </div>
+                            <div class="c4">
+                                <select>
+                                    <option value="all">All Classes</option>
+                                </select>
+                            </div>
+                            <div class="c5">
+                                <div>300 Students</div>
+                            </div>
+                        </div>
                     </div>
-                    <hr>
                     <div>
-                        <img src="quantum screen assets\icons\preview.svg" alt="preview">
-                        <img src="quantum screen assets\icons\manage course.svg" alt="manage course">
-                        <img src="quantum screen assets\icons\grade submissions.svg" alt="grade submission">
-                        <img src="quantum screen assets\icons\reports.svg" alt="reports">
+                        <div class="icons">
+                            <div><img src="quantum screen assets\icons\preview.svg" alt="preview"></div>
+                            <div><img src="quantum screen assets\icons\manage course.svg" alt="manage course" class="dim"></div>
+                            <div><img src="quantum screen assets\icons\grade submissions.svg" alt="grade submission" class="dim"></div>
+                            <div><img src="quantum screen assets\icons\reports.svg" alt="reports"></div>
+                        </div>                        
                     </div>
                 </div>
-                <div class="card">
-                    <div class="course cover"><img src="quantum screen assets\images\imageMask-2.png" alt="course cover"></div>
-                    <div>
 
+                <div class="card">
+                    <div class="card-info">
+                        <div>
+                            <div class="course cover"><img src="quantum screen assets\images\imageMask-2.png" alt="course cover"></div>
+                        </div>
+                        <div class="C">
+                            <div class="c1">
+                                <div>Introduction to High School Mathematics</div>
+                                <div><img src="quantum screen assets\icons\favourite.svg" alt="fav" class="deadStar"></div>
+                            </div>
+                            <div class="c2">
+                                <div>Mathematics</div>
+                                <div class="verticalBar"></div>
+                                <div>Grade 8</div>
+                                <div class="greenPlus">+3</div>
+                            </div>
+                            <div class="c4">
+                                <select>
+                                    <option value="a">Mr. Frank's Class A</option>
+                                </select>
+                            </div>
+                            <div class="c5">
+                                <div>44 Students</div>
+                                <div class="verticalBar"></div>
+                                <div>14-Oct-2019 - 20-Oct-2020</div>
+                            </div>
+                        </div>
                     </div>
-                    <hr>
                     <div>
-                        <img src="quantum screen assets\icons\preview.svg" alt="preview">
-                        <img src="quantum screen assets\icons\manage course.svg" alt="manage course">
-                        <img src="quantum screen assets\icons\grade submissions.svg" alt="grade submission">
-                        <img src="quantum screen assets\icons\reports.svg" alt="reports">
+                        <div class="icons">
+                            <div><img src="quantum screen assets\icons\preview.svg" alt="preview"></div>
+                            <div><img src="quantum screen assets\icons\manage course.svg" alt="manage course"></div>
+                            <div><img src="quantum screen assets\icons\grade submissions.svg" alt="grade submission"></div>
+                            <div><img src="quantum screen assets\icons\reports.svg" alt="reports"></div>
+                        </div>   
                     </div>
                 </div>
+
             </div>
         </div>
+
         <div class="footer">
-            <div>About | Contact Us</div>
-            <div><img src="quantum screen assets\icons\logo used in header.svg" alt="logo"> |  Copyright &copy; 2020-2021 Zeus Systems Pvt. Ltd. 
-            All rights reserverd.</div>
+            <div class="abt_contact">
+				<div>About</div>
+				<div class="verticalBar"></div>
+				<div>Contact Us</div>
+			</div>
+			<div class="end">
+				<div><img src="quantum screen assets\icons\logo used in footer.svg" alt="logo"></div>
+				<div class="verticalBar"></div>
+				<div>Copyright &copy; 2020-2021 Zeus Systems Pvt. Ltd.</div> 
+            	<div>All rights reserverd.</div>
+			</div>
         </div>
     </div>
+
 </body>
 </html>
