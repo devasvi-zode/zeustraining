@@ -1,0 +1,20 @@
+@import './fonts';
+
+body{
+    height: 100%;
+    margin:0;
+    font-family: 'Quicksand';
+    font-weight: 400;
+    background-color: #eeeeee;
+}
+.container{
+    display:grid;
+    height: 100vh;
+    grid-template-rows: 50px auto 85px;
+    background-color: #eeeeee;
+}
+@import './header';
+
+@import './login';
+
+@import './footer';

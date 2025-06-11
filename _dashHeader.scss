@@ -1,0 +1,56 @@
+.header{
+    display:flex;
+    background-color: #000000;
+    justify-content: space-evenly;
+    align-items: center;
+    color:#8ddc97;
+    margin:0;
+    padding:0;
+
+    #logoHeader{
+        padding-left: 20px;
+    }
+
+    .menu-1{
+        padding:15px;
+        &:hover{
+            color: white;
+            border-bottom: 3px solid rgb(255, 255, 255);
+        }
+        #dashboard{
+            margin-left:auto;
+        }
+    }
+    .menu-2{
+        padding:20px;
+
+    }
+    .gaps{
+        padding:10px;
+    }
+    .noti{
+        position: relative;
+        display: inline-block;
+
+        .notification{
+            width:15px;
+            height: 15px;
+            background-color: #2a7ff3;
+            color: white;
+            border-radius: 50%;
+            font-size: 11px;
+            display:flex;
+            justify-content: center;
+            align-items: center;
+            position: absolute;
+            top: -5px;
+            right: -5px;
+        }
+
+    }
+
+    #hamburger{
+        display:none;
+    }
+    
+}

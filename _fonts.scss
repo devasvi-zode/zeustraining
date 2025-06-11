@@ -1,0 +1,20 @@
+
+$quicksand-fonts: (
+  700: 'Quicksand-Bold.ttf',
+  600: 'Quicksand-SemiBold.ttf',
+  500: 'Quicksand-Medium.ttf',
+  400: 'Quicksand-Regular.ttf',
+  300: 'Quicksand-Light.ttf'
+);
+
+@mixin font-face($family, $weight, $file) {
+  @font-face {
+    font-family: $family;
+    src: url(#{$file});
+    font-weight: $weight;
+  }
+}
+
+@each $weight, $file in $quicksand-fonts {
+  @include font-face('Quicksand', $weight, $file);
+}
