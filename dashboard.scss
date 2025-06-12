@@ -17,5 +17,29 @@ body{
 
 @import './dashHeader';
 
+@import './dashContent';
 
 @import './footer';
+
+#hamburger{
+    display:none;
+}
+@media all and (max-width: 768px) {
+  #hamburger {
+    display: block;
+    padding-right: 10px;
+  }
+
+  .menu-1 {
+    display: none;
+  }
+
+  #bell {
+    margin-left: auto;
+  }
+
+  .menu-2 {
+    padding: 20px;
+    padding-right: 10px;
+  }
+}

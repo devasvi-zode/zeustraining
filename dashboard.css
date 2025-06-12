@@ -84,8 +84,146 @@ body {
   top: -5px;
   right: -5px;
 }
-.header #hamburger {
-  display: none;
+
+.content {
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  align-items: center;
+}
+.content .course-filter {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding-bottom: 10px;
+  width: 85%;
+}
+.content .course-filter .course-green {
+  background-color: #8ddc97;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  padding: 0px;
+  font-size: 400;
+  font-weight: 500;
+}
+.content .course-filter .course-green .c_c {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+}
+.content .course-filter .course-green #cc {
+  border-bottom: 2px solid black;
+}
+.content .course-filter .filter {
+  display: flex;
+  font-size: small;
+  border-bottom: 2px solid #cccccc;
+}
+.content .course-filter .filter .sort_by {
+  margin-left: auto;
+  display: flex;
+  gap: 10px;
+  padding-bottom: 10px;
+}
+.content .course-filter .filter .sort_by input[type=text],
+.content .course-filter .filter .sort_by select {
+  border: none;
+  border-bottom: 1px solid #aaa;
+  outline: none;
+  background: transparent;
+  font-size: small;
+  box-sizing: border-box;
+  margin-bottom: 5px;
+  width: 56%;
+}
+.content .course-info {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(49%, 1fr));
+  width: 85%;
+  gap: 20px;
+}
+.content .course-info .card {
+  background-color: white;
+  padding: 15px;
+  display: grid;
+  grid-template-rows: auto 1fr;
+}
+.content .course-info .card .card-info {
+  display: grid;
+  grid-template-columns: 1fr 3fr;
+  padding-bottom: 5px;
+  border-bottom: 1px solid #bebebe;
+  gap: 20px;
+}
+.content .course-info .card .card-info .C {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.content .course-info .card .card-info .C .c1 {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  font-size: large;
+  font-weight: 550;
+}
+.content .course-info .card .card-info .C .c1 .deadStar {
+  filter: grayscale(100%);
+  opacity: 0.3;
+}
+.content .course-info .card .card-info .C .c2 {
+  display: flex;
+}
+.content .course-info .card .card-info .C .c2 .greenPlus {
+  color: green;
+  font-weight: 500;
+}
+.content .course-info .card .card-info .C .c2 .verticalBar {
+  width: 1px;
+  height: 17px;
+  background-color: #aaa;
+  margin: 0 10px;
+}
+.content .course-info .card .card-info .C .c3 {
+  display: flex;
+  gap: 10px;
+}
+.content .course-info .card .card-info .C .c4 {
+  display: flex;
+  padding-top: 10px;
+}
+.content .course-info .card .card-info .C .c4 input[type=text],
+.content .course-info .card .card-info .C .c4 select {
+  border: none;
+  border-bottom: 1px solid #aaa;
+  outline: none;
+  background: transparent;
+  font-size: small;
+  box-sizing: border-box;
+  margin-bottom: 5px;
+  width: 90%;
+}
+.content .course-info .card .card-info .C .c5 {
+  display: flex;
+  font-size: 14px;
+}
+.content .course-info .card .card-info .C .c5 .verticalBar {
+  width: 1px;
+  height: 17px;
+  background-color: #aaa;
+  margin: 0 10px;
+}
+.content .course-info .card .icons {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding-top: 10px;
+  padding-bottom: 0;
+}
+.content .course-info .card .icons .dim {
+  opacity: 0.5;
 }
 
 .footer {
@@ -114,4 +252,25 @@ body {
   height: 17px;
   background-color: #aaa;
   margin: 0 10px;
+}
+
+#hamburger {
+  display: none;
+}
+
+@media all and (max-width: 768px) {
+  #hamburger {
+    display: block;
+    padding-right: 10px;
+  }
+  .menu-1 {
+    display: none;
+  }
+  #bell {
+    margin-left: auto;
+  }
+  .menu-2 {
+    padding: 20px;
+    padding-right: 10px;
+  }
 }/*# sourceMappingURL=dashboard.css.map */

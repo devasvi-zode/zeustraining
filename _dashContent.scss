@@ -75,11 +75,78 @@
                 grid-template-columns: 1fr 3fr;
                 padding-bottom: 5px;
                 border-bottom: 1px solid #bebebe;
+                gap:20px;
 
                 .C{
                     display:flex;
                     flex-direction: column;
                     gap:5px;
+
+                    .c1{
+                        display:flex;
+                        justify-content: space-between;
+                        align-items: flex-start;
+                        font-size: large;
+                        font-weight: 550;
+
+                        .deadStar{
+                            filter:grayscale(100%);
+                            opacity:(0.3);
+                        }
+                    }
+                    .c2{
+                        display: flex;
+                        .greenPlus{
+                            color:green;
+                            font-weight: 500;
+                        }
+                        .verticalBar {
+                            width: 1px;
+                            height: 17px;
+                            background-color:#aaa;
+                            margin: 0 10px;
+                        }
+                    }
+                    .c3{
+                        display:flex;
+                        gap:10px;
+                    }
+                    .c4{
+                        display:flex;
+                        padding-top: 10px;
+                        input[type="text"],
+                        select {
+                            border: none;
+                            border-bottom: 1px solid #aaa;
+                            outline: none;
+                            background: transparent;
+                            font-size: small;
+                            box-sizing: border-box;
+                            margin-bottom: 5px;
+                            width:90%;
+                        }
+                    }
+                    .c5{
+                        display:flex;
+                        font-size: 14px;
+                        .verticalBar {
+                            width: 1px;
+                            height: 17px;
+                            background-color:#aaa;
+                            margin: 0 10px;
+                        }
+                    }
+                }
+            }
+            .icons{
+                display:flex;
+                justify-content:space-around;
+                align-items: center;
+                padding-top: 10px;
+                padding-bottom: 0;
+
+                .dim{
+                    opacity:0.5;
                 }
             }
         }
