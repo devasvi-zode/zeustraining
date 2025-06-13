@@ -1,0 +1,39 @@
+[
+    {
+        "name":"Wilson Kumar",
+        "context":"No classes will be held on 21st Nov",
+        "file":"2 files are attached",
+        "time":"15-Sep-2018 at 7:21 pm",
+        "icon" : "<svg width=\"32\" height=\"32\" viewBox=\"0 0 32 32\" xmlns=\"http://www.w3.org/2000/svg\"><circle cx=\"16\" cy=\"16\" r=\"12\" stroke=\"#2E7D32\" stroke-width=\"2\" fill=\"none\" /><rect x=\"10\" y=\"15\" width=\"12\" height=\"2\" fill=\"#2E7D32\" /></svg>"
+    },
+    {
+        "name":"Samson White",
+        "context":"Guest lecture on Geometry on 20th September",
+        "file":"2 files are attached",
+        "time":"15-Sep-2018 at 7:21 pm",
+        "bg" : "alert-minus-bg",
+        "icon": "<svg width=\"32\" height=\"32\" viewBox=\"0 0 32 32\" xmlns=\"http://www.w3.org/2000/svg\"><circle cx=\"16\" cy=\"16\" r=\"14\" fill=\"#2E7D32\" /><path d=\"M12 16.5l3 3 6-6\" fill=\"none\" stroke=\"white\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>"
+    },
+    {
+        "name":"Wilson Kumar",
+        "context":"Additional course materials available on request",
+        "course": "Mathematics 101",
+        "time":"15-Sep-2018 at 7:21 pm",
+        "icon" : "<svg width=\"32\" height=\"32\" viewBox=\"0 0 32 32\" xmlns=\"http://www.w3.org/2000/svg\"><circle cx=\"16\" cy=\"16\" r=\"12\" stroke=\"#2E7D32\" stroke-width=\"2\" fill=\"none\" /><rect x=\"10\" y=\"15\" width=\"12\" height=\"2\" fill=\"#2E7D32\" /></svg>"
+    },
+    {
+        "name":"Wilson Kumar",
+        "context":"No classes will be held on 25th Dec",
+        "time":"15-Sep-2018 at 7:21 pm",
+        "bg" : "alert-minus-bg",
+        "icon": "<svg width=\"32\" height=\"32\" viewBox=\"0 0 32 32\" xmlns=\"http://www.w3.org/2000/svg\"><circle cx=\"16\" cy=\"16\" r=\"14\" fill=\"#2E7D32\" /><path d=\"M12 16.5l3 3 6-6\" fill=\"none\" stroke=\"white\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>"
+    },
+    {
+        "name":"Wilson Kumar",
+        "context":"Additional course materials available on request",
+        "course": "Mathematics 101",
+        "time":"15-Sep-2018 at 7:21 pm",
+        "bg" : "alert-minus-bg",
+        "icon": "<svg width=\"32\" height=\"32\" viewBox=\"0 0 32 32\" xmlns=\"http://www.w3.org/2000/svg\"><circle cx=\"16\" cy=\"16\" r=\"14\" fill=\"#2E7D32\" /><path d=\"M12 16.5l3 3 6-6\" fill=\"none\" stroke=\"white\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>"
+    }
+]
