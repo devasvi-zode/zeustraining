@@ -4,29 +4,71 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quantum Dashboard</title>
-    <link rel="stylesheet" href="s5.css">
+    <link rel="stylesheet" href="Sass_quantum\dashboard.css">
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <div><img src="quantum screen assets\icons\logo used in header.svg" alt="logo"></div>
-            <div class="menu-1" id="dashboard">DASHBOARD</div>
-            <div class="menu-1">CONTENT</div>
-            <div class="menu-1">USERS</div>
-            <div class="menu-1">REPORTS</div>
-            <div class="menu-1">ADMIN</div>
-            <div class="noti" id="bell">
-                <div class="menu"><img src="quantum screen assets\icons\alerts.svg" alt="alert"></div>
-                <div class="notification">2</div>
+            <div class="h1">
+                <div id="logoHeader"><img src="quantum screen assets\icons\logo used in header.svg" alt="logo"></div>
             </div>
-            <div class="gaps"></div>
-            <div class="noti">
-                <div class="menu"><img src="quantum screen assets\icons\announcements.svg" alt="announcements"></div>
-                <div class="notification">1</div>
+            <div class="h2">
+                <div class="menu-1" id="dashboard">DASHBOARD</div>
+                <div class="menu-1">CONTENT</div>
+                <div class="menu-1">USERS</div>
+                <div class="menu-1">REPORTS</div>
+                <div class="menu-1">ADMIN</div>
+                <div class="alert" id="alert-container">
+                <div><img src="quantum screen assets\icons\alerts.svg" alt="alert" id="alert">
+                    <div class="alert-preview">
+                        <div class="alert-scrollable"></div>
+                        <div class="showAll">SHOW ALL</div>
+                    </div>
+                </div>
+                <div class="notification" id="alert-notification">2</div>
+                </div>
+                <div class="announce" id="announcement-container">
+                <div><img src="quantum screen assets\icons\announcements.svg" alt="announcements" id="announcement">
+                    <div class="announce-preview">
+                        <div class="announce-scrollable"></div>
+                        <div class="showAll">SHOW ALL</div>
+                    </div>
+                </div>
+                <div class="notification" id="announce-notification">1</div>
+                </div>
+                <div class="pfp"><img src="girl.jpg" alt="account circle" id="profile-pic">
+                <div class="notification" id="pfp-notification">T</div>
+                </div>
+                <div class="hamburger"><img src="quantum screen assets\icons\hamburger-menu.svg" alt="hamburger" id="hamburger">
+                    <div class="hamburger-menu">
+                        <div class="hamburger-elem">
+                        <div>DASHBOARD</div>
+                        <div><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                        </div>
+                        <div class="content-toggle" id="hc">
+                            <div class="content-header">
+                                <div>CONTENT</div>
+                                <div class="content-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                            </div>
+                            <div class="ccc">COURSE CATALOG</div>
+                        </div>
+                        <div class="hamburger-elem">
+                        <div>USERS</div>
+                        <div><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                        </div>
+                        <div class="hamburger-elem">
+                        <div>REPORTS</div>
+                        <div><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+
+                        </div>
+                        <div class="hamburger-elem">
+                        <div>ADMIN</div>
+                        <div><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="menu-2"><img src="quantum screen assets\icons\account_circle.svg" alt="account circle"></div>
-            <div class="menu-2"><img src="quantum screen assets\icons\hamburger-menu.svg" alt="hamburger" id="hamburger"></div>
-            <!-- <div><img src="quantum screen assets\icons\hamburger-menu.svg" alt="hamburger menu"></div> -->
         </div>
 
         <div class="content">
@@ -250,6 +292,9 @@
 			</div>
         </div>
     </div>
-
+  <script src="Script_5.js"></script>
+  <script src="alert-preview.js"></script>
+  <script src="announce-preview.js"></script>
+  <script src="hamburger.js"></script>
 </body>
 </html>
