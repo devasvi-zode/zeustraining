@@ -19,6 +19,7 @@ function renderCourses(courses){
 
         card.innerHTML = `
       <div class="card-info">
+        ${course.status ? `<div class="${course.status}">EXPIRED</div>` : '' }
         <div>
           <div class="course-cover"><img src="${course.image}" alt="course cover"></div>
         </div>

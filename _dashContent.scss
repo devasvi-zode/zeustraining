@@ -28,7 +28,7 @@
             }
 
             #cc{
-                border-bottom: 2px solid black;
+                border-bottom: 5px solid black;
             }
 
         }
@@ -66,9 +66,11 @@
 
         .card{
             background-color: white;
-            padding:15px;
+            position: relative;
+            padding:20px;
+            padding-top: 25px;
             display: grid;
-            grid-template-rows: auto 1fr;
+            grid-template-rows: 5fr 1fr;
 
             .card-info{
                 display: grid;
@@ -76,6 +78,19 @@
                 padding-bottom: 5px;
                 border-bottom: 1px solid #bebebe;
                 gap:20px;
+
+                .expired{
+                    position: absolute;
+                    top: 0;
+                    left: 0px;
+                    color: red;
+                    background-color: #ffe4e6;
+                    width:fit-content;
+                    height: fit-content;
+                    padding: 3px;
+                    font-size: 10px;
+                    font-weight: 600;
+                }
 
                 .C{
                     display:flex;
