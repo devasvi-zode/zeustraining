@@ -1,0 +1,124 @@
+/* body{
+    font-family:'Roboto';
+    justify-content: center;
+    background-color: #000000;
+}
+.tweet-acc{
+    display:flex;
+    gap: 14px;
+    align-items: center;
+    background-color: white;
+    height: 138px;
+    width:457px;
+    margin: 4px 4px 4px 4px;
+}
+.profile-pic{
+    height:130px;
+    width: 130px;
+}
+
+.username{
+    font-weight: bold;
+    font-size: 20px;
+    color:#000000;
+    border: 1px solid blue;
+}
+.bio{
+    font-size:20px;
+    color:#000000;
+    margin-top: 14px;
+    margin-bottom: 24px;
+    border: 1px solid red;
+}
+.tweet-stats{
+    display:flex;
+    border: 1px solid blue;
+    margin:0;
+    padding:0;
+}
+.icon{
+    display:flex;
+    align-items: center;
+    font-weight: medium;
+    color:#858991;
+        margin:0;
+    padding:0;
+}
+.icon p{
+    font-size:15px;
+    margin-left: 14px;
+} */
+/* .icon i{
+    font-size: 20px;
+    width:20px;
+    height:20px;
+} */
+
+body {
+    font-family: 'Roboto';
+    background-color: #ffffff;
+    display: flex;
+    justify-content: center;
+    padding: 50px;
+    margin: 0; /* add to remove default body margin */
+}
+
+.tweet-acc {
+    width: 457px;
+    height: 138px;
+    display: flex;
+    background-color: white;
+    align-items: center;
+    margin: 4px 4px 4px 4px;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+
+.profile-pic img {
+    width: 130px;
+    height: 130px;
+    object-fit: cover;
+}
+
+.account {
+    flex: 1;
+    margin-left: 14px;
+}
+
+.username {
+    font-weight: bold;
+    font-size: 20px;
+    color: #000000;
+    margin-bottom: 14px;
+    margin-top:20px;
+    padding:0;
+}
+
+.bio {
+    font-size: 20px;
+    color: #000000;
+    margin:0;
+    font-weight: 400;
+}
+
+.tweet-stats {
+    display: flex;
+    gap:24px;
+    padding-top: 0;
+}
+.icon{
+    display:flex;
+    align-items: center;
+    font-weight: 500;
+    color:#858991;
+    gap:14px;
+} 
+.icon i {
+    font-size: 20px;
+    width: 20px;
+    height:20px;
+}
+
+.icon p {
+    font-size: 15px;
+    margin-right: 0;
+}

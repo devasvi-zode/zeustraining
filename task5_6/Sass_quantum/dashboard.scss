@@ -1,0 +1,36 @@
+@import './fonts';
+
+body{
+    height: 100%;
+    margin: 0;
+    font-family: 'Quicksand';
+    font-weight: 400;
+    background-color: #eeeeee;
+}
+
+.container{
+    background-color: #eeeeee;
+    display:grid;
+    grid-template-rows: 70px auto 85px;
+    height:100vh;
+}
+
+@import './dashHeader';
+
+@import './dashContent';
+
+@import './footer';
+
+.hamburger{
+  display:none;
+}
+@media all and (max-width: 768px) {
+  .menu-1{
+    display:none;
+  }
+  .hamburger{
+    display:block;
+  }
+}
+
+

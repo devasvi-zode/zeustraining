@@ -1,0 +1,9 @@
+body{
+    background-color: rgb(212, 246, 255);
+    font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif
+}
+
+#result{
+    width: 100%;
+    font-size: large;
+}

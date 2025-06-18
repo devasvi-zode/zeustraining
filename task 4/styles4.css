@@ -1,0 +1,29 @@
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    background-color: aqua;
+}
+.container{
+    display: grid;
+    grid-template-rows: 10% auto 10%;
+        height: 100%;
+}
+.container-1{
+    display:grid;
+    grid-template-columns: 25% 75%;
+}
+.container-2{
+    display:grid;
+    grid-template-rows: 50% 50%;
+}
+.container-3{
+    display:grid;
+    grid-template-columns: 50% 50%;
+}
+.content{
+    background-color:blue;
+}
+.header-and-footer{
+    background-color:blueviolet;
+}

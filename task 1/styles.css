@@ -1,0 +1,45 @@
+body{
+    background-color:rgb(256,252,204);
+    font-family: Arial, Helvetica, sans-serif;
+}
+h2{
+    background-color:rgb(4,156,4);
+    color:white;
+    padding-left: 12pt;
+    padding-top: 4px;
+    padding-bottom: 4px;
+}
+h1{
+    color: rgb(241, 235, 184);
+    background-color: rgb(156,4,4);
+    text-align: center;
+    border-bottom: 15px solid rgb(204,4,4);
+    letter-spacing: 10pt;
+    font-style: italic;
+    margin-bottom: 5px;
+}
+.random{
+    color:grey;
+}
+table, td{
+    border: 1px solid;
+    background-color: rgb(197, 195, 195);
+}
+img{
+    border: 2px dotted grey;
+}
+.list{
+    color: rgb(173, 2, 2);
+    font-style: italic;
+    font-size: medium;
+}
+a{
+    color: rgb(167, 62, 114);
+    text-decoration: none;
+    font-size: 15px;
+}
+#comments {
+    height: 100px;       /* fixed height */
+    overflow-y: scroll;    /* show vertical scrollbar when needed */
+    resize: vertical;    /* optional: allow user to resize vertically */
+}

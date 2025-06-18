@@ -1,0 +1,62 @@
+[
+    {
+        "title" : "License for Introducion to Algebra has been assigned to your school",
+        "time" : "15-Sep-2018 at 07:21 pm",
+        "bg" : "alert-minus-bg",
+        "icon" : "<svg width=\"20\" height=\"20\" viewBox=\"0 0 32 32\" xmlns=\"http://www.w3.org/2000/svg\"><circle cx=\"16\" cy=\"16\" r=\"12\" stroke=\"#2E7D32\" stroke-width=\"2\" fill=\"none\" /><rect x=\"10\" y=\"15\" width=\"12\" height=\"2\" fill=\"#2E7D32\" /></svg>"
+    },
+    {
+        "title": "Lesson 3 Practise Worksheet overdue for Amy Santiago",
+        "course": "Advanced Mathematics",
+        "time" :"15-Sep-2018 at 05:21 pm",
+        "bg": "alert-tick-bg",
+        "icon": "<svg width=\"20\" height=\"20\" viewBox=\"0 0 32 32\" xmlns=\"http://www.w3.org/2000/svg\"><circle cx=\"16\" cy=\"16\" r=\"14\" fill=\"#2E7D32\" /><path d=\"M12 16.5l3 3 6-6\" fill=\"none\" stroke=\"white\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>"
+    },
+    {
+        "title":"23 new students created",
+        "time":"14-Sep-2018 at 01:21 pm",
+        "bg" : "alert-minus-bg",
+        "icon" : "<svg width=\"20\" height=\"20\" viewBox=\"0 0 32 32\" xmlns=\"http://www.w3.org/2000/svg\"><circle cx=\"16\" cy=\"16\" r=\"12\" stroke=\"#2E7D32\" stroke-width=\"2\" fill=\"none\" /><rect x=\"10\" y=\"15\" width=\"12\" height=\"2\" fill=\"#2E7D32\" /></svg>"
+    },
+    {
+        "title":"15 submissions ready for evaluation",
+        "class": "Basic of Algebra",
+        "time":"13-Sep-2018 at 01:15 pm",
+        "bg" : "alert-minus-bg",
+        "icon" : "<svg width=\"20\" height=\"20\" viewBox=\"0 0 32 32\" xmlns=\"http://www.w3.org/2000/svg\"><circle cx=\"16\" cy=\"16\" r=\"12\" stroke=\"#2E7D32\" stroke-width=\"2\" fill=\"none\" /><rect x=\"10\" y=\"15\" width=\"12\" height=\"2\" fill=\"#2E7D32\" /></svg>"
+    },
+    {
+        "title":"License for Basic Concepts in Geometry has been assigned to your...",
+        "time":"13-Sep-2018 at 07:21 pm",
+        "bg" : "alert-minus-bg",
+        "icon" : "<svg width=\"20\" height=\"20\" viewBox=\"0 0 32 32\" xmlns=\"http://www.w3.org/2000/svg\"><circle cx=\"16\" cy=\"16\" r=\"12\" stroke=\"#2E7D32\" stroke-width=\"2\" fill=\"none\" /><rect x=\"10\" y=\"15\" width=\"12\" height=\"2\" fill=\"#2E7D32\" /></svg>"
+    },
+    {
+        "title":"Lesson 3 Practise Worksheet overdue for Sam Diego",
+        "course":"Advanced Mathematics",
+        "time":"15-Sep-2018 at 05:21 pm",
+        "bg": "alert-tick-bg",
+        "icon": "<svg width=\"20\" height=\"20\" viewBox=\"0 0 32 32\" xmlns=\"http://www.w3.org/2000/svg\"><circle cx=\"16\" cy=\"16\" r=\"14\" fill=\"#2E7D32\" /><path d=\"M12 16.5l3 3 6-6\" fill=\"none\" stroke=\"white\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>"
+    },
+        {
+        "title":"15 submissions ready for evaluation",
+        "class": "Basic of Algebra",
+        "time":"13-Sep-2018 at 01:15 pm",
+        "bg" : "alert-minus-bg",
+        "icon" : "<svg width=\"20\" height=\"20\" viewBox=\"0 0 32 32\" xmlns=\"http://www.w3.org/2000/svg\"><circle cx=\"16\" cy=\"16\" r=\"12\" stroke=\"#2E7D32\" stroke-width=\"2\" fill=\"none\" /><rect x=\"10\" y=\"15\" width=\"12\" height=\"2\" fill=\"#2E7D32\" /></svg>"
+    },
+    {
+        "title":"License for Basic Concepts in Geometry has been assigned to your...",
+        "time":"13-Sep-2018 at 07:21 pm",
+        "bg" : "alert-minus-bg",
+        "icon" : "<svg width=\"20\" height=\"20\" viewBox=\"0 0 32 32\" xmlns=\"http://www.w3.org/2000/svg\"><circle cx=\"16\" cy=\"16\" r=\"12\" stroke=\"#2E7D32\" stroke-width=\"2\" fill=\"none\" /><rect x=\"10\" y=\"15\" width=\"12\" height=\"2\" fill=\"#2E7D32\" /></svg>"
+    },
+    {
+        "title":"Lesson 3 Practise Worksheet overdue for Sam Diego",
+        "course":"Advanced Mathematics",
+        "time":"15-Sep-2018 at 05:21 pm",
+        "bg": "alert-tick-bg",
+        "icon": "<svg width=\"20\" height=\"20\" viewBox=\"0 0 32 32\" xmlns=\"http://www.w3.org/2000/svg\"><circle cx=\"16\" cy=\"16\" r=\"14\" fill=\"#2E7D32\" /><path d=\"M12 16.5l3 3 6-6\" fill=\"none\" stroke=\"white\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>"
+    }
+    
+]
