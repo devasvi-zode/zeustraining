@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Excel Clone with Canvas Headers</title>
+  <style>
+    html, body {
+      margin: 0;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    .grid-container {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    #gridWrapper {
+      position: absolute;
+      top: 30px;
+      left: 100px;
+      right: 0;
+      bottom: 0;
+      overflow: scroll;
+    }
+
+    canvas {
+      display: block;
+    }
+
+    #excelCanvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+      width: auto;
+      height: auto;
+    }
+
+    #colHeaderCanvas {
+      position: absolute;
+      top: 0;
+      left: 100px;
+      background: #f4f4f4;
+    }
+
+    #rowHeaderCanvas {
+      position: absolute;
+      top: 30px;
+      left: 0;
+      background: #f4f4f4;
+    }
+
+    #cornerCell {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100px;
+      height: 30px;
+      background: #e0e0e0;
+      border-right: 1px solid #ccc;
+      border-bottom: 1px solid #ccc;
+    }
+    #fakeScrollArea {
+        width: 50000px; /* TOTAL_COLS * COL_WIDTH = 500 * 100 */
+        height: 3000000px; /* TOTAL_ROWS * ROW_HEIGHT = 100000 * 30 */
+    }
+  </style>
+</head>
+<body>
+  <div class="grid-container">
+    <div id="cornerCell"></div>
+    <canvas id="colHeaderCanvas" height="30"></canvas>
+    <canvas id="rowHeaderCanvas" width="100"></canvas>
+
+    <div id="gridWrapper">
+      <div id="fakeScrollArea"></div>
+      <canvas id="excelCanvas"></canvas>
+    </div>
+  </div>
+
+  <script>
+    const TOTAL_ROWS = 100000;
+    const TOTAL_COLS = 500;
+    const ROW_HEIGHT = 30;
+    const COL_WIDTH = 100;
+
+    const excelCanvas = document.getElementById("excelCanvas");
+    const colHeaderCanvas = document.getElementById("colHeaderCanvas");
+    const rowHeaderCanvas = document.getElementById("rowHeaderCanvas");
+
+    const gridWrapper = document.getElementById("gridWrapper");
+    const ctx = excelCanvas.getContext("2d");
+    const colCtx = colHeaderCanvas.getContext("2d");
+    const rowCtx = rowHeaderCanvas.getContext("2d");
+
+    function getColLabel(n) {
+      let label = "";
+      while (n >= 0) {
+        label = String.fromCharCode((n % 26) + 65) + label;
+        n = Math.floor(n / 26) - 1;
+      }
+      return label;
+    }
+
+    function resizeCanvas() {
+      excelCanvas.width = gridWrapper.clientWidth;
+      excelCanvas.height = gridWrapper.clientHeight;
+
+      colHeaderCanvas.width = gridWrapper.clientWidth;
+      rowHeaderCanvas.height = gridWrapper.clientHeight;
+
+      renderAll();
+    }
+
+    function renderAll() {
+      const scrollX = gridWrapper.scrollLeft;
+      const scrollY = gridWrapper.scrollTop;
+
+      renderGrid(scrollX, scrollY);
+      renderColHeaders(scrollX);
+      renderRowHeaders(scrollY);
+    }
+
+    function renderGrid(scrollX, scrollY) {
+      ctx.clearRect(0, 0, excelCanvas.width, excelCanvas.height);
+      const visibleStartRow = Math.floor(scrollY / ROW_HEIGHT);
+      const visibleEndRow = visibleStartRow + Math.ceil(excelCanvas.height / ROW_HEIGHT);
+
+      const visibleStartCol = Math.floor(scrollX / COL_WIDTH);
+      const visibleEndCol = visibleStartCol + Math.ceil(excelCanvas.width / COL_WIDTH);
+
+      for (let row = visibleStartRow; row < visibleEndRow; row++) {
+        for (let col = visibleStartCol; col < visibleEndCol; col++) {
+          const x = col * COL_WIDTH - scrollX;
+          const y = row * ROW_HEIGHT - scrollY;
+
+          ctx.strokeStyle = "#ccc";
+          ctx.strokeRect(x, y, COL_WIDTH, ROW_HEIGHT);
+
+          ctx.fillStyle = "#000";
+          ctx.font = "12px Arial";
+          ctx.fillText(`R${row}C${col}`, x + 5, y + 20);
+        }
+      }
+    }
+
+    function renderColHeaders(scrollX) {
+      colCtx.clearRect(0, 0, colHeaderCanvas.width, colHeaderCanvas.height);
+
+      const visibleStartCol = Math.floor(scrollX / COL_WIDTH);
+      const visibleEndCol = visibleStartCol + Math.ceil(colHeaderCanvas.width / COL_WIDTH);
+
+      for (let col = visibleStartCol; col < visibleEndCol; col++) {
+        const x = col * COL_WIDTH - scrollX;
+
+        colCtx.strokeStyle = "#bbb";
+        colCtx.strokeRect(x, 0, COL_WIDTH, ROW_HEIGHT);
+
+        colCtx.fillStyle = "#000";
+        colCtx.font = "12px Arial";
+        colCtx.fillText(getColLabel(col), x + 5, 20);
+      }
+    }
+
+    function renderRowHeaders(scrollY) {
+      rowCtx.clearRect(0, 0, rowHeaderCanvas.width, rowHeaderCanvas.height);
+
+      const visibleStartRow = Math.floor(scrollY / ROW_HEIGHT);
+      const visibleEndRow = visibleStartRow + Math.ceil(rowHeaderCanvas.height / ROW_HEIGHT);
+
+      for (let row = visibleStartRow; row < visibleEndRow; row++) {
+        const y = row * ROW_HEIGHT - scrollY;
+
+        rowCtx.strokeStyle = "#bbb";
+        rowCtx.strokeRect(0, y, COL_WIDTH, ROW_HEIGHT);
+
+        rowCtx.fillStyle = "#000";
+        rowCtx.font = "12px Arial";
+        rowCtx.fillText(row + 1, 5, y + 20);
+      }
+    }
+
+    gridWrapper.addEventListener("scroll", () => {
+      renderAll();
+    });
+
+    window.addEventListener("resize", resizeCanvas);
+
+    resizeCanvas();
+  </script>
+</body>
+</html>

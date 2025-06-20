@@ -1,0 +1,36 @@
+/* Basic reset */
+
+
+#app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+/* Toolbar for stats */
+#toolbar {
+  background-color: #f0f0f0;
+  padding: 10px;
+  border-bottom: 1px solid #ccc;
+  font-size: 14px;
+}
+
+/* Canvas container */
+#grid-container {
+  flex: 1;
+  overflow: scroll;
+  position: relative;
+}
+
+#scroll-area {
+  width: 50000px; /* 500 columns × 100px */
+  height: 2500000px; /* 100000 rows × 25px */
+  position: relative;
+}
+
+
+#grid-canvas {
+  display: block;
+  background-color: #ffffff;
+  border: 1px solid #ccc;
+}

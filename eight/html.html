@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Excel Grid</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="app">
+    <!-- Toolbar for stats -->
+    <div id="toolbar">
+      <span id="stats">Selected: 0 | Sum: 0 | Avg: 0</span>
+    </div>
+
+    <!-- Canvas container -->
+    <div id="grid-container">
+        <div id="scroll-area">
+            <canvas id="grid-canvas" width="2000" height="1000"></canvas>
+        </div>
+    </div>
+  </div>
+
+  <script src="main.js"></script>
+</body>
+</html>

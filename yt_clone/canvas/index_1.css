@@ -1,0 +1,26 @@
+.header{
+    position:sticky;
+    top: 0;
+}
+.footer{
+    position: sticky;
+    bottom: 0;
+}
+.container{
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+body {
+margin: 0;
+position: relative;
+}
+canvas {
+display: block;
+}
+.canvas-wrapper {
+  width: 100vw;
+  height: 100vh;
+  overflow: auto;
+  border: 1px solid #ccc;
+}

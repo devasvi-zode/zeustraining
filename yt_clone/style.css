@@ -1,0 +1,23 @@
+.cell-row{
+    display:flex;
+
+}
+.cell{
+    width: 80px;
+    height: 30px;
+    border: 1px solid #c9c9c9;
+    outline:none;
+    box-sizing: border-box;
+}
+.cell:focus{
+    border: 2px solid green;
+    
+}
+.cell.header{
+    background-color: rgb(240, 236, 236);
+    text-align: center;
+}
+.cell.header.active{
+    background-color: green;
+    color: white;
+}

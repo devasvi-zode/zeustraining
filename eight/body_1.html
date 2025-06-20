@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Virtual Excel Grid</title>
+  <style>
+    body, html { margin:0; padding:0; height:100%; width:100%; }
+    .container { display: grid; height:100vh; grid-template-columns: 50px 1fr; grid-template-rows: 25px 1fr; }
+    .corner { grid-column:1; grid-row:1; background:#f3f3f3; border-bottom:1px solid #ccc; border-right:1px solid #ccc; }
+    .colName { grid-column:2; grid-row:1; display:flex; background:#f3f3f3; overflow:hidden; border-bottom:1px solid #ccc; }
+    .rowName { grid-column:1; grid-row:2; display:flex; flex-direction:column; background:#f3f3f3; overflow:hidden; border-right:1px solid #ccc; }
+    .gridSpace { grid-column:2; grid-row:2; overflow:scroll; position:relative; }
+    .canvas-wrapper { position:absolute; top:0; left:0; }
+    .col-header { width:100px; height:25px; box-sizing:border-box; border-right:1px solid #ccc; display:flex; justify-content:center; align-items:center; }
+    .row-header { height:25px; width:50px; box-sizing:border-box; border-bottom:1px solid #ccc; display:flex; justify-content:flex-end; align-items:center; padding-right:5px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="corner"></div>
+    <div class="colName" id="colName"></div>
+    <div class="rowName" id="rowName"></div>
+    <div class="gridSpace" id="gridSpace">
+      <div class="canvas-wrapper">
+        <canvas id="excelCanvas"></canvas>
+        <div id="fake-scroll"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('excelCanvas');
+    const ctx = canvas.getContext('2d');
+    const gridSpace = document.getElementById('gridSpace');
+    const canvasWrapper = document.querySelector('.canvas-wrapper');
+
+    const TOTAL_ROWS = 100000, TOTAL_COLS = 500;
+    const ROW_HEIGHT = 25, COL_WIDTH = 100;
+
+    function getExcelColumnName(i) {
+      let name = '';
+      while (i >= 0) {
+        name = String.fromCharCode((i % 26) + 65) + name;
+        i = Math.floor(i / 26) - 1;
+      }
+      return name;
+    }
+
+    function resizeCanvas() {
+      const vwCols = Math.ceil(gridSpace.clientWidth / COL_WIDTH);
+      const vhRows = Math.ceil(gridSpace.clientHeight / ROW_HEIGHT);
+      canvas.width = vwCols * COL_WIDTH;
+      canvas.height = vhRows * ROW_HEIGHT;
+      document.getElementById('fake-scroll').style.width = (TOTAL_COLS * COL_WIDTH) + 'px';
+      document.getElementById('fake-scroll').style.height = (TOTAL_ROWS * ROW_HEIGHT) + 'px';
+      renderAll();
+    }
+
+    function updateVisible(scrollX, scrollY) {
+      const sx = scrollX, sy = scrollY;
+      const cols = Math.ceil(canvas.width / COL_WIDTH);
+      const rows = Math.ceil(canvas.height / ROW_HEIGHT);
+      return {
+        startCol: Math.floor(sx / COL_WIDTH),
+        endCol: Math.min(TOTAL_COLS, Math.floor(sx / COL_WIDTH) + cols + 1),
+        startRow: Math.floor(sy / ROW_HEIGHT),
+        endRow: Math.min(TOTAL_ROWS, Math.floor(sy / ROW_HEIGHT) + rows + 1),
+        scrollX: sx, scrollY: sy
+      };
+    }
+
+    function renderGrid(vis) {
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      for (let r = vis.startRow; r < vis.endRow; r++) {
+        for (let c = vis.startCol; c < vis.endCol; c++) {
+          const x = c*COL_WIDTH - vis.scrollX;
+          const y = r*ROW_HEIGHT - vis.scrollY;
+          ctx.strokeStyle = '#ccc';
+          ctx.strokeRect(x,y,COL_WIDTH,ROW_HEIGHT);
+        }
+      }
+    }
+
+    function renderHeaders(vis) {
+      const colDiv = document.getElementById('colName');
+      const rowDiv = document.getElementById('rowName');
+      colDiv.innerHTML = '';
+      rowDiv.innerHTML = '';
+
+      for (let c = vis.startCol; c < vis.endCol; c++) {
+        const d = document.createElement('div');
+        d.className = 'col-header';
+        d.textContent = getExcelColumnName(c);
+        colDiv.appendChild(d);
+      }
+      for (let r = vis.startRow; r < vis.endRow; r++) {
+        const d = document.createElement('div');
+        d.className = 'row-header';
+        d.textContent = (r+1);
+        rowDiv.appendChild(d);
+      }
+    }
+
+    function renderAll() {
+      const vis = updateVisible(gridSpace.scrollLeft, gridSpace.scrollTop);
+      canvasWrapper.style.transform = `translate(${-vis.scrollX}px, ${-vis.scrollY}px)`;
+      renderGrid(vis);
+      renderHeaders(vis);
+    }
+
+    gridSpace.addEventListener('scroll', renderAll);
+    window.addEventListener('resize', resizeCanvas);
+
+    resizeCanvas();
+  </script>
+</body>
+</html>
