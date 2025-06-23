@@ -1,0 +1,22 @@
+.wrapper{
+    overflow:scroll;
+    position: relative;
+    width: 100%;
+    height: 100%;
+
+    canvas{
+        position: sticky;
+        top:0;
+        left:0;
+        z-index: 10;
+    }
+
+    .scroller{
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 4000000px; /* cellWidth * totalCols */
+        height: 3000000px; /* cellHeight * totalRows */
+        z-index: 1;
+    }
+}

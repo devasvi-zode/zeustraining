@@ -1,0 +1,88 @@
+const canvas = document.getElementById('myCanvas');
+const ctx = canvas.getContext('2d');
+const wrapper = document.querySelector('.wrapper');
+
+// Grid settings
+const cellWidth = 80;
+const cellHeight = 30;
+const totalCols = 50000;
+const totalRows = 100000;
+
+const virtualWidth = totalCols * cellWidth;
+const virtualHeight = totalRows * cellHeight;
+
+// Set canvas to be the full virtual size
+canvas.width = virtualWidth;
+canvas.height = virtualHeight;
+
+// Set wrapper scroll area to simulate big scrollable content
+canvas.style.width = `${virtualWidth}px`;
+canvas.style.height = `${virtualHeight}px`;
+
+// Resize wrapper to viewport
+wrapper.style.width = window.innerWidth + 'px';
+wrapper.style.height = window.innerHeight + 'px';
+
+window.addEventListener('resize', () => {
+  wrapper.style.width = window.innerWidth + 'px';
+  wrapper.style.height = window.innerHeight + 'px';
+  drawGrid();
+});
+
+// Draw visible portion of the grid
+function drawGrid() {
+  // Get visible area
+  const offsetX = wrapper.scrollLeft;
+  const offsetY = wrapper.scrollTop;
+
+  // Get visible canvas size
+  const viewWidth = wrapper.clientWidth;
+  const viewHeight = wrapper.clientHeight;
+
+  // Resize canvas to match view size (rendering only)
+  canvas.width = viewWidth;
+  canvas.height = viewHeight;
+
+  const startCol = Math.floor(offsetX / cellWidth);
+  const endCol = Math.min(startCol + Math.ceil(viewWidth / cellWidth), totalCols);
+
+  const startRow = Math.floor(offsetY / cellHeight);
+  const endRow = Math.min(startRow + Math.ceil(viewHeight / cellHeight), totalRows);
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.strokeStyle = '#ccc';
+  ctx.lineWidth = 1;
+
+  for (let col = startCol; col <= endCol; col++) {
+    const x = col * cellWidth - offsetX;
+    ctx.beginPath();
+    ctx.moveTo(x, 0);
+    ctx.lineTo(x, canvas.height);
+    ctx.stroke();
+  }
+
+  for (let row = startRow; row <= endRow; row++) {
+    const y = row * cellHeight - offsetY;
+    ctx.beginPath();
+    ctx.moveTo(0, y);
+    ctx.lineTo(canvas.width, y);
+    ctx.stroke();
+  }
+
+  // Optional: Draw row/col labels
+  ctx.fillStyle = 'black';
+  ctx.font = '12px sans-serif';
+  for (let row = startRow; row < endRow; row++) {
+    for (let col = startCol; col < endCol; col++) {
+      const x = col * cellWidth - offsetX + 4;
+      const y = row * cellHeight - offsetY + 14;
+      ctx.fillText(`${row},${col}`, x, y);
+    }
+  }
+}
+
+// Listen to scroll (wheel, scrollbars, touchpad, etc.)
+wrapper.addEventListener('scroll', drawGrid);
+
+// Initial render
+drawGrid();

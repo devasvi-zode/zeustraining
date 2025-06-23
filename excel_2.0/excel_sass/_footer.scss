@@ -1,0 +1,15 @@
+.footer{
+    padding: 0px;
+    margin: 0px;
+    display: grid;
+    grid-template-rows: 1fr auto;
+
+    .sheet_bar{
+        padding: 10px;
+    }
+
+    .footer_bottom{
+        background: white;
+        padding: 5px;
+    }
+}
