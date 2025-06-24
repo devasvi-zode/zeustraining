@@ -4,6 +4,7 @@
     padding: 10px;
     gap: 5px;
     background-color: #f5f5f5;
+    flex-shrink: 0;
 
     .head_1{
         display:flex;
@@ -20,7 +21,7 @@
         display: flex;
         background: white;
         border: 1px solid gray;
-        height: 100px;
+        height: 40px;
     }
 
     .head_4{

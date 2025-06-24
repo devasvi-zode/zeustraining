@@ -1,8 +1,7 @@
 .wrapper{
+    flex:1;
     overflow:scroll;
     position: relative;
-    width: 100%;
-    height: 100%;
 
     canvas{
         position: sticky;
@@ -19,4 +18,6 @@
         height: 3000000px; /* cellHeight * totalRows */
         z-index: 1;
     }
+
 }
+    

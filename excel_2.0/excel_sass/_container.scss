@@ -1,6 +1,8 @@
 .container{
-    display: grid;
-    grid-template-rows: auto 1fr auto;
+    // display: grid;
+    // grid-template-rows: auto 1fr auto;
+    display: flex;
+    flex-direction: column;
     width: 100%;
     height: 100vh;
     overflow: hidden;

@@ -5,14 +5,14 @@ const scroller = document.getElementById('scroller');
 
 function accountForDPI(){
     const dpr = window.devicePixelRatio || 1;
-    const rect = myCanvas.getBoundingClientRect();
+    const rect = canvas.getBoundingClientRect();
 
-    myCanvas.width = rect.width *dpr;
-    myCanvas.height = rect.height * dpr;
+    canvas.width = rect.width *dpr;
+    canvas.height = rect.height * dpr;
     ctx.scale(dpr, dpr);
 
-    myCanvas.style.width = `${rect.width}px`;
-    myCanvas.style.height = `${rect.height}px`;
+    canvas.style.width = `${rect.width}px`;
+    canvas.style.height = `${rect.height}px`;
 }
 accountForDPI();
 
@@ -198,8 +198,6 @@ canvas.addEventListener('mousemove', (e) => {
 });
 
 canvas.addEventListener('mousedown', (e) => {
-    const mouseX = e.offsetX + offsetX;
-    const mouseY = e.offsetY + offsetY;
 
     const startCol = Math.floor(offsetX / cellWidth);
     const endCol = Math.min(startCol + Math.ceil(canvas.width / cellWidth), totalCols);
