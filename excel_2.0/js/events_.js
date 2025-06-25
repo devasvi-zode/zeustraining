@@ -1,38 +1,30 @@
 import { canvas, wrapper } from './dom-elements.js';
 import { 
-  offsetX, offsetY, 
-  resizingCol, resizingRow, 
-  startX, startY, 
+  resizeState,
   colWidths, rowHeights,
   clampOffset, updateLayout,
-  getColX, getRowY
+  getColX, getRowY,
+  offsets
 } from './dimensions.js';
 import { drawGrid } from './rendering_.js';
 import { getStartCol, getEndCol, getStartRow, getEndRow } from './utils_.js';
-
+import { CELL_HEIGHT, CELL_WIDTH } from './config.js';
 
 
 export function setupEventListeners() {
     // Wheel event for scrolling
     wrapper.addEventListener('wheel', (e) => {
-        console.log('Type of offsetX:', typeof offsetX, 'is writable?', 
-    Object.getOwnPropertyDescriptor(module, 'offsetX').writable);
-        console.log('Before:', { offsetX, offsetY });
-offsetX += e.deltaX;
-offsetY += e.deltaY;
-console.log('After:', { offsetX, offsetY });
-
         e.preventDefault();
-        offsetX += e.deltaX;
-        offsetY += e.deltaY;
+        offsets.x += e.deltaX;
+        offsets.y += e.deltaY;
         clampOffset();
         drawGrid();
     }, { passive: false });
 
     // Scroll event
     wrapper.addEventListener('scroll', () => {
-        offsetX = wrapper.scrollLeft;
-        offsetY = wrapper.scrollTop;
+        offsets.x = wrapper.scrollLeft;
+        offsets.y = wrapper.scrollTop;
         clampOffset();
         drawGrid();
     });
@@ -52,25 +44,25 @@ function handleMouseMove(e) {
     const dpr = window.devicePixelRatio || 1;
     const logicalWidth = canvas.width / dpr;
     const logicalHeight = canvas.height / dpr;
-    const startCol = getStartCol(offsetX);
-    const endCol = getEndCol(offsetX, logicalWidth);
-    const startRow = getStartRow(offsetY);
-    const endRow = getEndRow(offsetY, logicalHeight);
+    const startCol = getStartCol(offsets.x);
+    const endCol = getEndCol(offsets.x, logicalWidth);
+    const startRow = getStartRow(offsets.y);
+    const endRow = getEndRow(offsets.y, logicalHeight);
     const MIN_COL_WIDTH = 60;
 
-    if (resizingCol !== null) {
-        const deltaX = e.clientX - startX;
-        colWidths[resizingCol] = Math.max(30, colWidths[resizingCol] + deltaX);
-        startX = e.clientX;
+    if (resizeState.col !== null) {
+        const deltaX = e.clientX - resizeState.startX;
+        colWidths[resizeState.col] = Math.max(30, colWidths[resizeState.col] + deltaX);
+        resizeState.startX = e.clientX;
         updateLayout();
         drawGrid();
         return;
     }
 
-    if (resizingRow !== null) {
-        const deltaY = e.clientY - startY;
-        rowHeights[resizingRow] = Math.max(30, rowHeights[resizingRow] + deltaY);
-        startY = e.clientY;
+    if (resizeState.row !== null) {
+        const deltaY = e.clientY - resizeState.startY;
+        rowHeights[resizeState.row] = Math.max(20, rowHeights[resizeState.row] + deltaY);
+        resizeState.startY = e.clientY;
         updateLayout();
         drawGrid();
         return;
@@ -78,18 +70,18 @@ function handleMouseMove(e) {
 
     // Check for column resize cursor
     for (let col = startCol; col < endCol; col++) {
-        const x = getColX(col) - offsetX;
+        const x = getColX(col) - offsets.x;
         if (e.offsetY < CELL_HEIGHT && Math.abs(e.offsetX - (x + colWidths[col])) < 5) {
-            canvas.style.cursor = 'col-resize';
+            canvas.style.cursor = 'ew-resize';
             return;
         }
     }
 
     // Check for row resize cursor
     for (let row = startRow; row < endRow; row++) {
-        const y = getRowY(row) - offsetY;
+        const y = getRowY(row) - offsets.y;
         if (e.offsetX < CELL_WIDTH && Math.abs(e.offsetY - (y + rowHeights[row])) < 5) {
-            canvas.style.cursor = 'row-resize';
+            canvas.style.cursor = 'ns-resize';
             return;
         }
     }
@@ -101,36 +93,39 @@ function handleMouseDown(e) {
     const dpr = window.devicePixelRatio || 1;
     const logicalWidth = canvas.width / dpr;
     const logicalHeight = canvas.height / dpr;
-    const startCol = getStartCol(offsetX);
-    const endCol = getEndCol(offsetX, logicalWidth);
-    const startRow = getStartRow(offsetY);
-    const endRow = getEndRow(offsetY, logicalHeight);
+    const startCol = getStartCol(offsets.x);
+    const endCol = getEndCol(offsets.x, logicalWidth);
+    const startRow = getStartRow(offsets.y);
+    const endRow = getEndRow(offsets.y, logicalHeight);
 
     // Check for column resize
     for (let col = startCol; col < endCol; col++) {
-        const x = getColX(col) - offsetX;
+        const x = getColX(col) - offsets.x;
         if (e.offsetY < CELL_HEIGHT && Math.abs(e.offsetX - (x + colWidths[col])) < 5) {
-            resizingCol = col;
-            startX = e.clientX;
+            if(col === 0) return;
+            resizeState.col = col;
+            resizeState.startX = e.clientX;
             return;
         }
     }
 
     // Check for row resize
     for (let row = startRow; row < endRow; row++) {
-        const y = getRowY(row) - offsetY;
+        const y = getRowY(row) - offsets.y;
         if (e.offsetX < CELL_WIDTH && Math.abs(e.offsetY - (y + rowHeights[row])) < 5) {
-            resizingRow = row;
-            startY = e.clientY;
+            if(row === 0) return;
+            resizeState.row = row;
+            resizeState.startY = e.clientY;
             return;
         }
     }
 }
 
 function handleMouseUp() {
-    if (resizingCol !== null || resizingRow !== null) {
-        resizingCol = null;
-        resizingRow = null;
+    if (resizeState.col !== null || resizeState.row !== null) {
+        resizeState.col = null;
+        resizeState.row = null;
+        updateLayout();
         drawGrid();
     }
 }

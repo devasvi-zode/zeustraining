@@ -35,7 +35,7 @@ export function getStartCol(offsetX) {
             left = mid + 1;
         }
     }
-    return result;
+    return result-1;
 }
 
 export function getEndCol(offsetX, viewWidth) {
@@ -61,7 +61,7 @@ export function getEndCol(offsetX, viewWidth) {
         result++;
     }
     
-    return Math.min(result, TOTAL_COLS - 1);
+    return Math.min(result+1, TOTAL_COLS);
 }
 
 export function getStartRow(offsetY) {
@@ -81,7 +81,7 @@ export function getStartRow(offsetY) {
             left = mid + 1;
         }
     }
-    return result;
+    return result-1;
 }
 
 export function getEndRow(offsetY, viewHeight) {
@@ -109,3 +109,4 @@ export function getEndRow(offsetY, viewHeight) {
     
     return Math.min(result, TOTAL_ROWS - 1);
 }
+

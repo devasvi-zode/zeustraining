@@ -54,7 +54,7 @@ body {
   overflow: scroll;
   position: relative;
 }
-.wrapper canvas {
+.wrapper #myCanvas {
   position: sticky;
   top: 0;
   left: 0;

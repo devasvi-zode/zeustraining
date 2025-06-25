@@ -7,34 +7,40 @@ import {
   ctx, canvas,
 } from './dom-elements.js';
 import { 
-  offsetX, offsetY, 
+  offsets,
   getColX, getRowY, 
   colWidths, rowHeights, 
-  resizingCol, resizingRow,
+  resizeState
 } from './dimensions.js';
 import { getStartCol, getEndCol, getStartRow, getEndRow, getColumnName } from './utils_.js';
 
 export function drawGrid() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.strokeStyle = '#ccc';
-    ctx.lineWidth = 1;
-    ctx.font = '12px sans-serif';
-    ctx.fillStyle = "black";
+        if (!ctx) {
+        console.error('Canvas context not initialized!');
+        return;
+    }
 
     const dpr = window.devicePixelRatio || 1;
     const logicalWidth = canvas.width / dpr;
     const logicalHeight = canvas.height / dpr;
 
-    const startCol = getStartCol(offsetX);
-    const endCol = getEndCol(offsetX, logicalWidth);
-    const startRow = getStartRow(offsetY);
-    const endRow = getEndRow(offsetY, logicalHeight);
+    ctx.clearRect(0, 0, logicalWidth, logicalHeight);
+
+    ctx.strokeStyle = '#ccc';
+    ctx.lineWidth = 1;
+    ctx.font = '12px sans-serif';
+    ctx.fillStyle = "black";
+
+    const startCol = getStartCol(offsets.x);
+    const endCol = getEndCol(offsets.x, logicalWidth);
+    const startRow = getStartRow(offsets.y);
+    const endRow = getEndRow(offsets.y, logicalHeight);
 
     // Draw cells
     for (let row = startRow; row < endRow; row++) {
         for (let col = startCol; col < endCol; col++) {
-            const x = getColX(col) - offsetX;
-            const y = getRowY(row) - offsetY;
+            const x = getColX(col) - offsets.x;
+            const y = getRowY(row) - offsets.y;
             ctx.strokeRect(x, y, colWidths[col], rowHeights[row]);
             ctx.fillText(`${row}, ${col}`, x + 5, y + 20);
         }
@@ -42,7 +48,7 @@ export function drawGrid() {
 
     // Draw column headers
     for (let col = startCol; col < endCol; col++) {
-        const x = getColX(col) - offsetX;
+        const x = getColX(col) - offsets.x;
         const y = 0;
         ctx.fillStyle = '#f5f5f5';
         ctx.fillRect(x, y, colWidths[col], CELL_HEIGHT);
@@ -54,7 +60,7 @@ export function drawGrid() {
     // Draw row headers
     for (let row = startRow; row < endRow; row++) {
         const x = 0;
-        const y = getRowY(row) - offsetY;
+        const y = getRowY(row) - offsets.y;
         ctx.fillStyle = '#f5f5f5';
         ctx.fillRect(x, y, CELL_WIDTH, rowHeights[row]);
         ctx.strokeRect(x, y, CELL_WIDTH, rowHeights[row]);
@@ -70,53 +76,48 @@ export function drawGrid() {
     ctx.fillText('', 5, 15);
 
     // Draw resize guides if resizing
-    if (resizingCol !== null) {
-        drawColumnResizeGuide(resizingCol);
+    if (resizeState.col !== null) {
+        const colLeft = getColX(resizeState.col) - offsets.x;
+        const totalGridHeight = getRowY(TOTAL_ROWS);
+
+        // Solid rectangle around column
+        ctx.strokeStyle = RESIZE_COLOR;
+        ctx.lineWidth = RESIZE_GUIDE_WIDTH;
+        ctx.setLineDash([]);
+        ctx.strokeRect(colLeft, 0, CELL_WIDTH, totalGridHeight);
+
+        // Dashed line at resize position
+        const currentX = getColX(resizeState.col) + colWidths[resizeState.col] - offsets.x;
+        ctx.strokeStyle = RESIZE_COLOR;
+        ctx.setLineDash([5, 3]);
+        ctx.beginPath();
+        ctx.moveTo(currentX, 0);
+        ctx.lineTo(currentX, totalGridHeight);
+        ctx.stroke();
+        ctx.setLineDash([]);
     }
     
-    if (resizingRow !== null) {
-        drawRowResizeGuide(resizingRow);
+    if (resizeState.row !== null) {
+        const rowTop = getRowY(resizeState.row) - offsets.y;
+        const totalGridWidth = getColX(TOTAL_COLS);
+
+        // Solid rectangle around row
+        ctx.strokeStyle = RESIZE_COLOR;
+        ctx.lineWidth = RESIZE_GUIDE_WIDTH;
+        ctx.setLineDash([]);
+        ctx.strokeRect(0, rowTop, totalGridWidth, CELL_HEIGHT);
+
+        // Dashed line at resize position
+        const currentY = getRowY(resizeState.row) + rowHeights[resizeState.row] - offsets.y;
+        ctx.strokeStyle = RESIZE_COLOR;
+        ctx.setLineDash([5, 3]);
+        ctx.beginPath();
+        ctx.moveTo(0, currentY);
+        ctx.lineTo(totalGridWidth, currentY);
+        ctx.stroke();
+        ctx.setLineDash([]);
     }
 }
 
-function drawColumnResizeGuide(col) {
-    const colLeft = getColX(col) - offsetX;
-    const colRight = colLeft + colWidths[col];
-    
-    // Solid rectangle around column
-    ctx.strokeStyle = RESIZE_COLOR;
-    ctx.lineWidth = RESIZE_GUIDE_WIDTH;
-    ctx.setLineDash([]);
-    ctx.strokeRect(colLeft, 0, colWidths[col], canvas.height);
-    
-    // Dashed line at resize position
-    const currentX = getColX(col) + colWidths[col] - offsetX;
-    ctx.strokeStyle = RESIZE_COLOR;
-    ctx.setLineDash([5, 3]);
-    ctx.beginPath();
-    ctx.moveTo(currentX, 0);
-    ctx.lineTo(currentX, canvas.height);
-    ctx.stroke();
-    ctx.setLineDash([]);
-}
 
-function drawRowResizeGuide(row) {
-    const rowTop = getRowY(row) - offsetY;
-    
-    // Solid rectangle around row
-    ctx.strokeStyle = RESIZE_COLOR;
-    ctx.lineWidth = RESIZE_GUIDE_WIDTH;
-    ctx.setLineDash([]);
-    ctx.strokeRect(0, rowTop, canvas.width, rowHeights[row]);
-    
-    // Dashed line at resize position
-    const currentY = getRowY(row) + rowHeights[row] - offsetY;
-    ctx.strokeStyle = RESIZE_COLOR;
-    ctx.setLineDash([5, 3]);
-    ctx.beginPath();
-    ctx.moveTo(0, currentY);
-    ctx.lineTo(canvas.width, currentY);
-    ctx.stroke();
-    ctx.setLineDash([]);
-    ctx.restore();
-}
+

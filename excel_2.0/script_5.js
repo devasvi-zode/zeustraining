@@ -516,7 +516,7 @@ function getStartCol(offsetX) {
       left = mid + 1;
     }
   }
-  return result;
+  return result-1;
 }
 
 // function getEndCol(offsetX, viewWidth) {
@@ -585,7 +585,7 @@ function getStartRow(offsetY) {
       left = mid + 1;
     }
   }
-  return result;
+  return result-1;
 }
 
 // function getEndRow(offsetY, viewHeight) {
