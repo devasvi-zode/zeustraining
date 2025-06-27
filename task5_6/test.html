@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Courses Display</title>
+  <link rel="stylesheet" href="s5.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div id="logoHeader"><img src="quantum screen assets\icons\logo used in header.svg" alt="logo"></div>
+            <div class="menu-1" id="dashboard">DASHBOARD</div>
+            <div class="menu-1">CONTENT</div>
+            <div class="menu-1">USERS</div>
+            <div class="menu-1">REPORTS</div>
+            <div class="menu-1">ADMIN</div>
+            <div class="noti" id="alert-container">
+                <div class="menu"><img src="quantum screen assets\icons\alerts.svg" alt="alert" id="alert">
+                    <div class="alert-preview"></div>
+                </div>
+                <div class="notification" id="alert-notification">2</div>
+            </div>
+            <div class="gaps"></div>
+            <div class="noti" id="announcement-container">
+                <div class="menu"><img src="quantum screen assets\icons\announcements.svg" alt="announcements" id="announcement">
+                    <div class="announce-preview">
+                        <div class="showAll">
+                            <div>SHOW ALL</div>
+                            <div class="verticalBar"></div>
+                            <div>CREATE NEW</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="notification" id="announce-notification">1</div>
+            </div>
+            <div class="menu-2"><img src="quantum screen assets\icons\account_circle.svg" alt="account circle"></div>
+            <div><img src="quantum screen assets\icons\hamburger-menu.svg" alt="hamburger" id="hamburger">
+                <div class="hamburger-menu">
+                    <div>DASHBOARD</div>
+                    <div>CONTENT</div>
+                    <div>USERS</div>
+                    <div>REPORTS</div>
+                    <div>ADMIN</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="course-filter">
+                <div class="course-green">
+                    <div class="c_c" id="cc">
+                        <div><img src="quantum screen assets\icons\courses.svg" alt="courses"></div>
+                        <div><b>4</b> Courses</div>
+                    </div>
+                    <div class="c_c">
+                        <div><img src="quantum screen assets\icons\classes.svg" alt="classes"></div>
+                        <div><b>4</b> Classes</div>
+                    </div>
+                </div>
+                <div class="filter">
+                    <div>Showing 4 of 4 courses</div>
+                    <form class="sort_by">
+                        <label>Sort By: </label>
+                        <select>
+                            <option value="name">Course Name</option>
+                        </select>
+                        <img src="quantum screen assets\icons\sort.svg" alt="sort">
+                    </form>
+                </div>
+            </div>
+            <div class="course-info">
+                
+            </div>
+        </div>
+
+        <div class="footer">
+            <div class="abt_contact">
+				<div>About</div>
+				<div class="verticalBar"></div>
+				<div>Contact Us</div>
+			</div>
+			<div class="end">
+				<div><img src="quantum screen assets\icons\logo used in footer.svg" alt="logo"></div>
+				<div class="verticalBar"></div>
+				<div>Copyright &copy; 2020-2021 Zeus Systems Pvt. Ltd.</div> 
+            	<div>All rights reserverd.</div>
+			</div>
+        </div>
+    </div>
+    <script src="Script_5.js"></script>
+    <script src="alert-preview.js"></script>
+    <script src="announce-preview.js"></script>
+    <script src="hamburger.js"></script>
+</body>
+</html>

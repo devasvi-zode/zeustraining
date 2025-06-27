@@ -40,7 +40,7 @@ body {
 
 .header {
   display: flex;
-  background-color: black;
+  background-image: url("header pattern svg.svg");
   align-items: center;
   color: #8ddc97;
   margin: 0;
@@ -356,6 +356,7 @@ body {
   color: #01740c;
   font-weight: 500;
   width: 250px;
+  z-index: 1;
 }
 .header .hamburger .hamburger-menu:hover {
   display: block;
@@ -456,7 +457,9 @@ body {
 }
 .content .course-info .card {
   background-color: white;
-  padding: 15px;
+  position: relative;
+  padding: 20px;
+  padding-top: 25px;
   display: grid;
   grid-template-rows: 5fr 1fr;
 }
@@ -466,6 +469,20 @@ body {
   padding-bottom: 5px;
   border-bottom: 1px solid #bebebe;
   gap: 20px;
+}
+.content .course-info .card .card-info .expired {
+  position: absolute;
+  top: 0;
+  left: 0px;
+  color: red;
+  background-color: #ffe4e6;
+  width: -moz-fit-content;
+  width: fit-content;
+  height: -moz-fit-content;
+  height: fit-content;
+  padding: 3px;
+  font-size: 10px;
+  font-weight: 600;
 }
 .content .course-info .card .card-info .C {
   display: flex;
@@ -564,7 +581,7 @@ body {
   margin: 0 10px;
 }
 
-.hamburger {
+#hamburger {
   display: none;
 }
 
@@ -572,7 +589,7 @@ body {
   .menu-1 {
     display: none;
   }
-  .hamburger {
+  #hamburger {
     display: block;
   }
 }/*# sourceMappingURL=dashboard.css.map */

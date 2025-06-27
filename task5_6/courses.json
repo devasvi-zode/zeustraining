@@ -35,18 +35,19 @@
         "topics":22,
         "class": "All Classes",
         "students":300,
-        "image":"quantum screen assets/images/imageMask-2.png",
+        "image":"quantum screen assets/images/imageMask-3.png",
         "icon":"dim"
     },
     {
-        "title": "Introduction to Higt School Mathematics",
+        "title": "Introduction to High School Mathematics",
         "subject": "Mathematics",
         "grade": "Grade 8",
         "gradePlus": "+3",
         "class": "Mr.Frank's Class A",
         "students":44,
         "duration":"14-Oct-2019 - 20-Oct-2020",
-        "image":"quantum screen assets/images/imageMask-3.png",
-        "star":"deadStar"
+        "image":"quantum screen assets/images/imageMask-2.png",
+        "star":"deadStar",
+        "status":"expired"
     }
 ]

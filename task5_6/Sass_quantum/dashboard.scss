@@ -21,14 +21,14 @@ body{
 
 @import './footer';
 
-.hamburger{
+#hamburger{
   display:none;
 }
 @media all and (max-width: 768px) {
   .menu-1{
     display:none;
   }
-  .hamburger{
+  #hamburger{
     display:block;
   }
 }

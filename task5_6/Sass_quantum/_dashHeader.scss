@@ -1,6 +1,7 @@
 .header{
     display:flex;
-    background-color: black;
+    // background-color: black;
+    background-image: url("header pattern svg.svg");
     align-items: center;
     color:#8ddc97;
     margin:0;
@@ -335,6 +336,7 @@
             color:#01740c;
             font-weight: 500;
             width:250px;
+            z-index: 1;
             
             &:hover{
                 display: block;
