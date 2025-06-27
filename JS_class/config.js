@@ -11,7 +11,6 @@ export const CELL_EDITING_STYLE = {
     // padding: '5px',
     fontSize: '12px',
     fontFamily: 'sans-serif',
-    border: '3px solid green',
     outline: 'none',
     boxSizing: 'border-box'
 };

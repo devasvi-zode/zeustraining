@@ -35,3 +35,21 @@ export class ResizedRowCommand {
         this.dimensions.updateLayout();
     }
 }
+
+export class CellEditCommand {
+    constructor(cellData, col, row, newValue) {
+        this.cellData = cellData;
+        this.col = col;
+        this.row = row;
+        this.newValue = newValue;
+        this.previousValue = cellData.getCellValue(col, row);
+    }
+
+    execute() {
+        this.cellData.setCellValue(this.col, this.row, this.newValue);
+    }
+
+    undo() {
+        this.cellData.setCellValue(this.col, this.row, this.previousValue);
+    }
+}

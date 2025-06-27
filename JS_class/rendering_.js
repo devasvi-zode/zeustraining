@@ -1,10 +1,11 @@
 import { CELL_HEIGHT, CELL_WIDTH, RESIZE_COLOR, RESIZE_GUIDE_WIDTH, TOTAL_COLS, TOTAL_ROWS} from './config.js';
 import { ctx, canvas } from './dom-elements.js';
-//import { getCellValue } from './cell_data_store.js';
 
 export class Renderer {
-    constructor(dimensionsManager) {
+    constructor(dimensionsManager,dataStore) {
         this.dimensions = dimensionsManager;
+        this.dataStore = dataStore;
+        this.selectedCell = null;
     }
 
     drawGrid() {
@@ -20,7 +21,7 @@ export class Renderer {
         ctx.fillStyle = "black";
 
         const startCol = this.getStartCol(this.dimensions.offsets.x);
-        const endCol = this.getEndCol(this.dimensions.offsets.y, logicalWidth);
+        const endCol = this.getEndCol(this.dimensions.offsets.x, logicalWidth);
         const startRow = this.getStartRow(this.dimensions.offsets.y);
         const endRow = this.getEndRow(this.dimensions.offsets.y, logicalHeight);
 
@@ -31,15 +32,25 @@ export class Renderer {
                 const y = this.dimensions.getRowY(row) - this.dimensions.offsets.y;
                 ctx.strokeRect(x, y, this.dimensions.colWidths[col], this.dimensions.rowHeights[row]);
 
+                
+                //Skip drawing text if this cell is being edited
+                if (
+                    this.selectedCell &&
+                    this.selectedCell.col === col &&
+                    this.selectedCell.row === row
+                ) {
+                    continue;
+                }
+
                 //Draw cell value if it exists
-                //const value = getCellValue(col, row);
-                //ctx.fillText(value || `${row},${col}`, x + 5, y + 20);
+                const value = this.dataStore.getCellValue(col, row);
+                ctx.fillText(value || ``, x + 5, y + 20);
             }
         }
 
         // Draw column headers
         for (let col = startCol; col < endCol; col++) {
-            const x = this.dimensions.getColX(col) - this.dimensions.offsets.x;
+            const x = Math.max(0, this.dimensions.getColX(col) - this.dimensions.offsets.x);
             const y = 0;    //makes the column header is always visible
             ctx.fillStyle = '#f5f5f5';
             ctx.fillRect(x, y, this.dimensions.colWidths[col], CELL_HEIGHT);
@@ -51,7 +62,7 @@ export class Renderer {
         // Draw row headers
         for (let row = startRow; row < endRow; row++) {
             const x = 0;  //makes the row header always visible
-            const y = this.dimensions.getRowY(row) - this.dimensions.offsets.y;
+            const y = Math.max(0, this.dimensions.getRowY(row) - this.dimensions.offsets.y);
             ctx.fillStyle = '#f5f5f5';
             ctx.fillRect(x, y, CELL_WIDTH, this.dimensions.rowHeights[row]);
             ctx.strokeRect(x, y, CELL_WIDTH, this.dimensions.rowHeights[row]);
@@ -65,11 +76,41 @@ export class Renderer {
         ctx.strokeRect(0, 0, CELL_WIDTH, CELL_HEIGHT);
         ctx.fillStyle = 'black';
         ctx.fillText('', 5, 15);
+
+        this.drawResizeGuides();
+
+        if(this.selectedCell){
+            this.drawCellSelection();
+        }
     }
 
-    drawGreen() {
+    setSelectedCell(col, row){
+        console.log("Setting selected cell:", this.getColumnName(col), row);
+        this.selectedCell = {col, row};
+        this.drawGrid();
+    }
+    clearSelection(){
+        this.selectedCell = null;
+        this.drawGrid();
+    }
+    drawCellSelection(){
+        console.log("Drawing selection for:", this.selectedCell);
+        const {col,row} = this.selectedCell;
+        const x = this.dimensions.getColX(col)-this.dimensions.offsets.x;
+        const y = this.dimensions.getRowY(row) - this.dimensions.offsets.y;
+        const width = this.dimensions.colWidths[col];
+        const height = this.dimensions.rowHeights[row];
+        if(x === 0 || y === 0) return;
+        ctx.strokeStyle = 'green';
+        ctx.lineWidth = 2;
+        ctx.setLineDash([]);
+        ctx.strokeRect(x,y,width,height);
+    }
+
+    drawResizeGuides() {
         if (this.dimensions.resizeState.col !== null) {
-            const colLeft = this.dimensions.getColX(resizeState.col) - this.dimensions.offsets.x;
+            //ctx.clearRect(0, 0, logicalWidth, logicalHeight);
+            const colLeft = this.dimensions.getColX(this.dimensions.resizeState.col) - this.dimensions.offsets.x;
             const totalGridHeight = this.dimensions.getRowY(TOTAL_ROWS);
 
             // Solid rectangle around column
@@ -132,7 +173,7 @@ export class Renderer {
     }
     getEndCol(offsetX, viewWidth) {
         const target = offsetX + viewWidth;
-        if (target >= this.dimensions.cumulativeColWidths[TOTAL_COLS - 1]) return TOTAL_COLS;
+        if (target >= this.dimensions.getColX(TOTAL_COLS)) return TOTAL_COLS;
 
         let left = this.getStartCol(offsetX);
         let right = TOTAL_COLS;
@@ -176,7 +217,7 @@ export class Renderer {
     }
     getEndRow(offsetY, viewHeight) {
         const target = offsetY + viewHeight;
-        if (target >= this.dimensions.cumulativeRowHeights[TOTAL_ROWS - 1]) return TOTAL_ROWS;
+        if (target >= this.dimensions.getRowY(TOTAL_ROWS)) return TOTAL_ROWS;
 
         let left = this.getStartRow(offsetY);
         let right = TOTAL_ROWS;
@@ -199,7 +240,6 @@ export class Renderer {
 
         return Math.min(result, TOTAL_ROWS - 1);
     }
-
     getColumnName(index){
         let result = "";
         let n = index;

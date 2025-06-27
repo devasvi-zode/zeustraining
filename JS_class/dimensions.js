@@ -3,8 +3,8 @@ import { canvas, wrapper, scroller} from './dom-elements.js';
 
 export class DimensionsManager{
     constructor(){
-        this.colWidths = new Array(TOTAL_COLS).fill(CELL_WIDTH);
-        this.rowHeights = new Array(TOTAL_ROWS).fill(CELL_HEIGHT);
+        this.colWidths = new Array(TOTAL_COLS).fill(Math.floor(CELL_WIDTH));
+        this.rowHeights = new Array(TOTAL_ROWS).fill(Math.floor(CELL_HEIGHT));
         this.cumulativeColWidths = new Array(TOTAL_COLS);
         this.cumulativeRowHeights = new Array(TOTAL_ROWS);
         this.offsets = { x:0, y:0 };
@@ -20,10 +20,19 @@ export class DimensionsManager{
 
     updateLayout(){
         this.updateCumulativeDimensions();
-        scroller.style.width = this.getColX(TOTAL_COLS) + 'px';
-        scroller.style.height = this.getRowY(TOTAL_ROWS) + 'px';
+        scroller.style.width = `${this.getColX(TOTAL_COLS) }px`;
+        scroller.style.height = `${this.getRowY(TOTAL_ROWS) }px`;
         this.resizeCanvasToWrapper();
         this.clampOffset();
+        console.log("Calculated total width:", this.getColX(TOTAL_COLS));
+console.log("Scroller width:", scroller.offsetWidth);
+        console.log("Calculated total height:", this.getRowY(TOTAL_ROWS));
+console.log("Scroller height:", scroller.offsetHeight);
+console.log("Last column width:", 
+  this.colWidths[this.colWidths.length - 1],
+  "Total drift:", 
+  400000 - this.cumulativeColWidths[TOTAL_COLS - 1]
+);
     }
 
     resizeCanvasToWrapper(){
@@ -41,6 +50,7 @@ export class DimensionsManager{
         ctx.setTransform(1,0,0,1,0,0);
         ctx.scale(dpr, dpr);
         ctx.translate(0.5 ,0.5);
+        //ctx.imageSmoothingEnabled = false;
 
         return { dpr, wrapperWidth, wrappperHeight};
     }
@@ -48,12 +58,14 @@ export class DimensionsManager{
     updateCumulativeDimensions(){
         let colSum = 0;
         for (let i=0; i<TOTAL_COLS; i++){
+            this.colWidths[i] = Math.floor(this.colWidths[i]);
             colSum += this.colWidths[i];
             this.cumulativeColWidths[i] = colSum;
         }
 
         let rowSum = 0;
         for( let j=0; j<TOTAL_ROWS; j++){
+            this.rowHeights[j] = Math.floor(this.rowHeights[j]);
             rowSum += this.rowHeights[j];
             this.cumulativeRowHeights[j] = rowSum;
         }
@@ -84,7 +96,7 @@ export class DimensionsManager{
         this.offsets.x = Math.max(0, Math.min(this.offsets.x, maxOffsetX));
         this.offsets.y = Math.max(0, Math.min(this.offsets.y, maxOffsetY));
 
-        wrapper.scollLeft = this.offsets.x;
+        wrapper.scrollLeft = this.offsets.x;
         wrapper.scrollTop = this.offsets.y;
     }
 
@@ -94,5 +106,12 @@ export class DimensionsManager{
 
     getRowY(row){
         return row === 0 ? 0 : this.cumulativeRowHeights[row-1];
+    }
+    getTotalWidth() {
+    return this.cumulativeColWidths[TOTAL_COLS - 1]; // total grid width
+    }
+
+    getTotalHeight() {
+        return this.cumulativeRowHeights[TOTAL_ROWS - 1]; // total grid height
     }
 }
