@@ -3,7 +3,7 @@ export class ResizedColumnCommand {
         this.dimensions = dimensionsManager;
         this.col = col;
         this.newWidth = newWidth;
-        this.previousWidth = dimensionsManager.colWidhts[col];
+        this.previousWidth = dimensionsManager.colWidths[col];
     }
 
     execute(){
@@ -51,5 +51,20 @@ export class CellEditCommand {
 
     undo() {
         this.cellData.setCellValue(this.col, this.row, this.previousValue);
+    }
+}
+
+export class ColumnSelectCommand {
+    constructor(selectionManager, prevSelection, newSelection) {
+        this.selectionManager = selectionManager;
+        this.prevSelection = prevSelection;
+        this.newSelection = newSelection;
+    }
+
+    execute(){
+        this.selectionManager.selectColumn(this.newSelection);
+    }
+    undo(){
+        this.selectionManager.selectColumn(this.prevSelection);
     }
 }

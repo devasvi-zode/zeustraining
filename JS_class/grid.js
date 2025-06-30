@@ -5,7 +5,8 @@ import { EventManager } from "./Events_.js";
 import { CellEditor } from "./cell_editing.js";
 import {cell_data} from './cell_data.js';
 import { CommandManager } from './commandManager.js';
-import { resizeCanvasToWrapper } from "../js/dimensions.js";
+import { JsonGridLoader } from './load_json.js';
+import { ColumnSelector } from "./column_selector.js";
 
 export class Grid {
     constructor() {
@@ -18,10 +19,19 @@ export class Grid {
             this.dimensions, 
             this.renderer, 
             this.cell_data, 
-            this.commandManager // Make sure to pass it here
+            this.commandManager
         );
-
+        this.JsonGridLoader = new JsonGridLoader(
+            json_button,
+            json_file_input,
+            this.cell_data,
+            this.renderer
+        );
+        this.columnSelector = new ColumnSelector(this.dimensions, this.renderer, this.commandManager);
+        // Register components
+        this.renderer.registerCellEditor(this.cellEditor);
         this.init();
+
     }
 
     init(){
@@ -30,6 +40,7 @@ export class Grid {
         this.renderer.drawGrid();
         this.eventManager.setupEventListener();
         this.cellEditor.setupCellEditing();
+        this.columnSelector.setupColumnSelection();
         
         window.addEventListener('resize', () => {
             this.dimensions.resizeCanvasToWrapper();

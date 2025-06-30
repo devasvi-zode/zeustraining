@@ -16,10 +16,16 @@ export class CellEditor {
         this.handleCellDoubleClick = this.handleCellDoubleClick.bind(this);
         this.finishEditing = this.finishEditing.bind(this);
         this.handleKeyDown = this.handleKeyDown.bind(this);
+
+        this.inputElement = document.createElement('input');
+        this.setupCellEditing();
+
+        //register with renderer
+        this.renderer.registerCellEditor(this);
     }
 
     setupCellEditing() {
-        this.inputElement = document.createElement('input');
+        
         Object.assign(this.inputElement.style, {
             position: "absolute",
             display: 'none',
@@ -91,25 +97,13 @@ export class CellEditor {
         return null;
     }
 
+
     startEditing(col, row) {
         this.activeCell = { col, row };
         this.c = col;
         this.v = row;
         this.renderer.setSelectedCell(col, row);
-        //Position the input element over the cell
-        const x = this.dimension.getColX(col);
-        const y = this.dimension.getRowY(row);
-        const width = this.dimension.colWidths[col];
-        const height = this.dimension.rowHeights[row];
-
-        if(x === 0 || y === 0) return;
-        Object.assign(this.inputElement.style, {
-            left: `${x}px`,
-            top: `${y}px`,
-            width: `${width}px`,
-            height: `${height}px`,
-            display: `block`
-        });
+        this.renderer.updateInputBoxPosition(); 
 
         //get current cell value 
         this.inputElement.value = this.cell_data.getCellValue(col, row) || '';
@@ -139,7 +133,7 @@ export class CellEditor {
             this.renderer.clearSelection();
         }
         //Save the value 
-        this.cell_data.setCellValue(this.activeCell.col, this.activeCell.row, this.inputElement.value);
+        this.cell_data.setCellValue(col, row, this.inputElement.value);
 
         this.inputElement.style.display = 'none';
         this.activeCell = null;

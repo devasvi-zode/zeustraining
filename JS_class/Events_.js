@@ -66,7 +66,7 @@ export class EventManager {
             const deltaX = e.clientX - this.dimensions.resizeState.startX;
             const newWidth = Math.max(60, this.dimensions.colWidths[this.dimensions.resizeState.col] + deltaX);
 
-            //Temporarily update teh widht for visual feedback
+            //Temporarily update the widht for visual feedback
             this.dimensions.colWidths[this.dimensions.resizeState.col] = newWidth;
             this.dimensions.resizeState.startX = e.clientX;
             
@@ -101,6 +101,24 @@ export class EventManager {
             const y = this.dimensions.getRowY(row) - this.dimensions.offsets.y;
             if (e.offsetX < CELL_WIDTH && Math.abs(e.offsetY - (y + this.dimensions.rowHeights[row])) < 5) {
                 canvas.style.cursor = 'ns-resize';
+                return;
+            }
+        }
+
+        // Check for column select cursor
+        for (let col = startCol; col < endCol; col++) {
+            const x = this.dimensions.getColX(col) - this.dimensions.offsets.x;
+            if (e.offsetY < CELL_HEIGHT && Math.abs(e.offsetX - (x + this.dimensions.colWidths[col])) > 5) {
+                canvas.style.cursor = 'url(icons8-thick-arrow-pointing-down-15.png) 15 15 ,grab';
+                return;
+            }
+        }
+
+        // Check for row select cursor
+        for(let row = startRow; row < endRow; row++){
+            const y = this.dimensions.getRowY(row) - this.dimensions.offsets.y;
+            if(e.offsetX < CELL_WIDTH && Math.abs(e.offsetY - (y + this.dimensions.rowHeights[row])) > 5){
+                canvas.style.cursor = 'url(icons8-arrow-15.png) 15 15, grab';
                 return;
             }
         }
@@ -147,6 +165,7 @@ export class EventManager {
                 return;
             }
         }
+
     }
     handleMouseUp() {
         // if (this.dimensions.resizeState.col !== null || this.dimensions.resizeState.row !== null) {

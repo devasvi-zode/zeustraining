@@ -12,5 +12,5 @@ export const CELL_EDITING_STYLE = {
     fontSize: '12px',
     fontFamily: 'sans-serif',
     outline: 'none',
-    boxSizing: 'border-box'
+    boxSizing: 'border-box',
 };
