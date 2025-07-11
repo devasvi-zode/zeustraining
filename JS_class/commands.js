@@ -7,18 +7,14 @@ export class ResizedColumnCommand {
      * Constructs a ResizedColumnCommand instance.
      * 
      * @param {DimensionsManager} dimensionsManager - Manages dimensions of the grid.
-     * @param {Number} col - the index of the column to be resized.
-     * @param {Array} newWidth - The new width to apply to the column
+     * @param {Map<number, number>} newWidths - Map of colIndex → newWidth
+     * @param {Map<number, number>} oldWidths - Map of colIndex → oldWidth
      */
-    constructor(dimensionsManager, col, newWidth){
+    constructor(dimensionsManager, newWidths, oldWidths){
         this.dimensions = dimensionsManager;
-        this.col = col;
-        this.newWidth = newWidth;
+        this.newWidths = newWidths;
+        this.oldWidths = oldWidths;
 
-        /**
-         * @type {Number} - The previous width of the column before resizing (used for undo).
-         */
-        this.previousWidth = dimensionsManager.colWidths[col];
     }
 
     /**
@@ -26,16 +22,20 @@ export class ResizedColumnCommand {
      * and updating the layout.
      */
     execute(){
-        this.dimensions.colWidths[this.col] = this.newWidth;
+        for (const [col, width] of this.newWidths.entries()) {
+            this.dimensions.colWidths[col] = width;
+        }
         this.dimensions.updateLayout();
     }
 
     /**
-     * Undoes the column resize by restoring the previous width 
+     * Undoes the column resize by restoring the old width 
      * and updating the layout.
      */
     undo(){
-        this.dimensions.colWidths[this.col] = this.previousWidth;
+        for (const [col, width] of this.oldWidths.entries()) {
+            this.dimensions.colWidths[col] = width;
+        }
         this.dimensions.updateLayout();
     }
 }
@@ -51,14 +51,10 @@ export class ResizedRowCommand {
      * @param {Number} row - The index of the row to be resized.
      * @param {Array} newHeight - The new height to apply to the row.
      */
-    constructor(dimensionsManager, row, newHeight){
+    constructor(dimensionsManager,  newHeights, oldHeights){
         this.dimensions = dimensionsManager;
-        this.row = row;
-        this.newHeight = newHeight;
-        /**
-         * @type {Number} - The previous height of the row before resizing (used for undo).
-         */
-        this.previousHeight = dimensionsManager.rowHeights[row];
+        this.newHeights = newHeights;
+        this.oldHeights = oldHeights;
     }
 
     /**
@@ -66,16 +62,20 @@ export class ResizedRowCommand {
      * and updating the layout.
      */
     execute(){
-        this.dimensions.rowHeights[this.row] = this.newHeight;
+        for (const [col, width] of this.newHeights.entries()) {
+            this.dimensions.colWidths[col] = width;
+        }
         this.dimensions.updateLayout();
     }
 
     /**
-     * Undoes the row resize by restoring the previous height 
+     * Undoes the row resize by restoring the old height 
      * and updating the layout
      */
     undo(){
-        this.dimensions.rowHeights[this.row] = this.previousHeight;
+        for (const [col, width] of this.oldHeights.entries()) {
+            this.dimensions.colWidths[col] = width;
+        }
         this.dimensions.updateLayout();
     }
 }
@@ -101,7 +101,7 @@ export class CellEditCommand {
         /**
          * @type {Number} - the prvious value of the cell (col, row) before editing (used for undo).
          */
-        this.previousValue = cellData.getCellValue(col, row);
+        this.oldValue = cellData.getCellValue(col, row);
     }
 
     /**
@@ -112,10 +112,10 @@ export class CellEditCommand {
     }
 
     /**
-     * Undoes the cell value by restoring the previous cell vaule
+     * Undoes the cell value by restoring the old cell vaule
      */
     undo() {
-        this.cellData.setCellValue(this.col, this.row, this.previousValue);
+        this.cellData.setCellValue(this.col, this.row, this.oldValue);
     }
 }
 

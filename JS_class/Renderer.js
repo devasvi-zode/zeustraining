@@ -1,4 +1,4 @@
-import { CELL_HEIGHT, CELL_WIDTH, RESIZE_COLOR, RESIZE_GUIDE_WIDTH, TOTAL_COLS, TOTAL_ROWS} from './config.js';
+import { CELL_HEIGHT, CELL_WIDTH, RESIZE_COLOR, RESIZE_GUIDE_WIDTH, TOTAL_COLS, TOTAL_ROWS, gridConfig} from './config.js';
 import { ctx, canvas } from './dom-elements.js';
 
 /**
@@ -6,238 +6,450 @@ import { ctx, canvas } from './dom-elements.js';
  * headers, selections, and visual cues for resizing.
  */
 export class Renderer {
-    /**
-     * 
-     * @param {DimensionsManager} dimensionsManager - Manages grid dimensions and offsets.
-     * @param {cell_data} dataStore - Provides access to the cell data values.
+    /**Constructs the Renderer instance.
+     * @param {DimensionsManager} dimensions - Manages grid dimensions and offsets
+     * @param {cell_data} dataStore - Provides access to cell data values
+     * @param {SelectorManager} selectorManager - Handles selection state
+     * @param {EventManager} eventManager - Handles mouse events on the canvas
      */
-    constructor(dimensionsManager,dataStore) {
-        this.dimensions = dimensionsManager;
+    constructor(dimensions, dataStore, selectorManager, eventManager) {
+        this.dimensions = dimensions;
         this.dataStore = dataStore;
-        this.selectedCell = null;
-        this.cellEditor = null;
+        this.selectorManager = selectorManager;
+        this.eventManager = eventManager;
 
-        this.selectedColumns = new Set(); //track multiple columns
-        this.selectedRows = new Set(); //track multiple rows
 
-        // Colors and styles
         this.styles = {
             gridLine: '#ccc',
             headerBg: '#f5f5f5',
             selectedHeaderBg: '#107c41',
             selectedHeaderText: 'white',
-            selectedCellBg: 'rgba(232,242,236,0.6)',
-            selectionBorder: 'green',
-            selectionBorderWidth: 2
+            selectedCellBg: '#e8f2ec',
+            selectionBorder: '#137e43',
+            selectionBorderWidth: 2,
+            highlightHeaderBg: '#caead8',
+            highlightHeaderText: '#0f703b'
         };
     }
 
     /**
-     * Registers a cell editor for input positioning and interactions.
-     * @param {CellEditor} cellEditor 
-     */
-    registerCellEditor(cellEditor){
-        this.cellEditor = cellEditor;
-    }
-
-    /**
-     * Adds a column to the current column selection.
-     * @param {number} col 
-     */
-    addSelectedColumn(col) {
-        this.selectedColumns.add(col);
-        this.drawGrid();
-    }
-
-    /**
-     * Removes a column form the current column selection.
-     * @param {number} col 
-     */
-    removeSelectedColumn(col) {
-        this.selectedColumns.delete(col);
-        this.drawGrid();
-    }
-
-    /**
-     * Clears all selected columns.
-     */
-    clearColumnSelection() {
-        this.selectedColumns.clear();
-        this.drawGrid();
-    }
-
-    /**
-     * Adds a row to the current row selection.
-     * @param {number} row 
-     */
-    addSelectedRow(row){
-        this.selectedRows.add(row);
-        this.drawGrid();
-    }
-
-    /**
-     * Remove a row from the current row selection
-     * @param {number} row 
-     */
-    removeSelectedRow(row){
-        this.selectedRows.delete(row);
-        this.drawGrid();
-    }
-
-    /**
-     * Clears all selected rows.
-     */
-    clearRowSelection(){
-        this.selectedRows.clear();
-        this.drawGrid();
-    }
-
-    /**
-     * Renders the entire visible grid including cells, headers, selections,
-     * and resizing indicators.
+      * Renders the entire visible portion of the spreadsheet/grid.
+      * Clears the canvas, draws grid lines, cell content, headers,
+      * selections, and resize indicators.
      */
     drawGrid() {
+        this.clearCanvas();
+        this.setupCanvasStyles();
+        
+        const { startCol, endCol, startRow, endRow } = this.getVisibleRange();
+        const selectedCell = this.selectorManager.cellSelector.selectedCell;
+        const selectedRows = this.selectorManager.rowSelector.selectedRows;
+        const selectedColumns = this.selectorManager.columnSelector.selectedColumns;
+
+        this.drawCells(startCol, endCol, startRow, endRow, selectedCell, selectedRows, selectedColumns);
+
+        
+        if (this.dimensions.resizeState.col !== null || this.dimensions.resizeState.row !== null) {
+            this.drawResizeGuides();
+        }
+        
+        // Draw both single cell and range selections
+        if (this.selectorManager.cellSelector.selectedRange) {
+            this.drawCellSelectionRange();
+        }
+
+        if (selectedCell) {
+            this.drawCellSelection(selectedCell);
+        }
+
+
+        this.drawColumnHeaders(startCol, endCol, selectedColumns);
+        this.drawRowHeaders(startRow, endRow, selectedRows);
+
+        this.drawSelectionBorders(selectedColumns, selectedRows);
+
+        this.drawColumnHeaders(startCol, endCol, selectedColumns);
+        this.drawRowHeaders(startRow, endRow, selectedRows);
+
+        this.drawCornerCell();
+
+    }
+
+    drawGridResize() {
+        const { startCol, endCol, startRow, endRow } = this.getVisibleRange();
+        const selectedCell = this.selectorManager.cellSelector.selectedCell;
+        const selectedRows = this.selectorManager.rowSelector.selectedRows;
+        const selectedColumns = this.selectorManager.columnSelector.selectedColumns;
+        if (this.dimensions.resizeState.col !== null || this.dimensions.resizeState.row !== null) {
+            this.drawResizeGuides();
+        }
+
+        this.drawColumnHeaders(startCol, endCol, selectedColumns);
+        this.drawRowHeaders(startRow, endRow, selectedRows);
+
+        this.drawCornerCell();
+    }
+
+    /**
+     * Clears the entire canvas using device pixel ratio scaling.
+     */
+    clearCanvas() {
+        const dpr = window.devicePixelRatio || 1;
+        ctx.clearRect(0, 0, canvas.width / dpr, canvas.height / dpr);
+    }
+
+    /**
+     * Sets up canvas drawing styles such as stroke, font, and fill color.
+     */
+    setupCanvasStyles() {
+        ctx.strokeStyle = this.styles.gridLine;
+        ctx.lineWidth = 1;
+        ctx.font = '12px sans-serif';
+        ctx.fillStyle = "black";
+    }
+
+    /**
+     * Calculates the visible range of rows and columns based on current scroll offsets.
+     * @returns {{startCol: number, endCol: number, startRow: number, endRow: number}} Visible grid range.
+     */
+    getVisibleRange() {
         const dpr = window.devicePixelRatio || 1;
         const logicalWidth = canvas.width / dpr;
         const logicalHeight = canvas.height / dpr;
 
-        ctx.clearRect(0, 0, logicalWidth, logicalHeight);
+        return {
+            startCol: this.getStartCol(this.dimensions.offsets.x),
+            endCol: this.getEndCol(this.dimensions.offsets.x, logicalWidth),
+            startRow: this.getStartRow(this.dimensions.offsets.y),
+            endRow: this.getEndRow(this.dimensions.offsets.y, logicalHeight)
+        };
+    }
 
-        ctx.strokeStyle = '#ccc';
+    /**
+     * Draws the content of each visible cell on the canvas,
+     * based on the current scroll position and cell dimensions.
+     * Uses `dataStore` to fetch cell values.
+     * @param {number} startCol 
+     * @param {number} endCol 
+     * @param {number} startRow 
+     * @param {number} endRow 
+     * @param {number} selectedCell 
+     * @param {number} selectedRows 
+     * @param {number} selectedColumns 
+     */
+    drawCells(startCol, endCol, startRow, endRow, selectedCell, selectedRows, selectedColumns) {
+        const cellSelector = this.selectorManager.cellSelector;
+
+        // Determine the active cell (white background)
+        let activeCell = this.selectorManager.lastActiveCell;
+
+        for (let row = startRow; row < endRow; row++) {
+            for (let col = startCol; col < endCol; col++) {
+
+                const x = this.dimensions.getColX(col) - this.dimensions.offsets.x;
+                const y = this.dimensions.getRowY(row) - this.dimensions.offsets.y;
+
+                // Check if cell is in any selection
+                const isSelected = cellSelector.isCellSelected(col, row) ||
+                    selectedRows.has(row) ||
+                    selectedColumns.has(col);
+
+
+                // Draw background 
+                if (isSelected) {
+                    if(activeCell && col === activeCell.col && row === activeCell.row) {
+                        ctx.fillStyle = 'white';
+                    } else {
+                        ctx.fillStyle = this.styles.selectedCellBg;
+                    }
+                    ctx.fillRect(x, y, this.dimensions.colWidths[col], this.dimensions.rowHeights[row]);
+                    
+                }
+
+                this.drawCellBorder(x, y, col, row);
+                this.drawCellValue(col, row, x, y);
+            }
+        }
+    }
+
+
+    /**
+     * Draws selection border around the entire range
+     */
+    drawCellSelectionRange() {
+        const range = this.selectorManager.cellSelector.selectedRange;
+        if (!range) return;
+
+        const { startCol, startRow, endCol, endRow } = range;
+        if (startCol === 0 || startRow === 0 || endCol === 0 || endRow === 0) return;
+
+        const x = this.dimensions.getColX(startCol) - this.dimensions.offsets.x;
+        const y = this.dimensions.getRowY(startRow) - this.dimensions.offsets.y;
+
+        const width = this.dimensions.getColX(endCol) - this.dimensions.getColX(startCol) +
+            this.dimensions.colWidths[endCol];
+        const height = this.dimensions.getRowY(endRow) - this.dimensions.getRowY(startRow) +
+            this.dimensions.rowHeights[endRow];
+
+        ctx.strokeStyle = this.styles.selectionBorder;
+        ctx.lineWidth = 2;
+        ctx.setLineDash([]);
+        ctx.strokeRect(x, y, width, height);
         ctx.lineWidth = 1;
+    }
+
+    /**
+     * get selectect row and column headers for cell range selection
+     */
+    getSelectedColHeadersFromCellSelection() {
+        const selectedColHeaders = new Set();
+
+        const range = this.selectorManager.cellSelector.selectedRange;
+        const selectedCell = this.selectorManager.cellSelector.selectedCell;
+
+        if (range) {
+            for (let col = range.startCol; col <= range.endCol; col++) {
+                selectedColHeaders.add(col);
+            }
+
+        } else if (selectedCell) {
+            selectedColHeaders.add(selectedCell.col);
+
+        }
+
+        return  selectedColHeaders ;
+    }
+
+    getSelectedRowHeadersFromCellSelection() {
+
+        const selectedRowHeaders = new Set();
+        const range = this.selectorManager.cellSelector.selectedRange;
+        const selectedCell = this.selectorManager.cellSelector.selectedCell;
+
+        if (range) {
+
+            for (let row = range.startRow; row <= range.endRow; row++) {
+                selectedRowHeaders.add(row);
+            }
+        } else if (selectedCell) {
+
+            selectedRowHeaders.add(selectedCell.row);
+        }
+
+        return selectedRowHeaders ;
+    }
+
+
+    /**
+     * Draws the border around a cell.
+     * @param {number} x - X position. 
+     * @param {number} y - Y position.
+     * @param {number} col - Column index. 
+     * @param {number} row - Row index.
+     */
+    drawCellBorder(x, y, col, row) {
+        ctx.strokeRect(x, y, this.dimensions.colWidths[col], this.dimensions.rowHeights[row]);
+    }
+
+    /**
+     * Draws the value inside a cell.
+     * @param {number} col - Column index. 
+     * @param {number} row - Row index.
+     * @param {number} x - X position.
+     * @param {number} y - Y position. 
+     */
+    drawCellValue(col, row, x, y) {
+        const value = this.dataStore.getCellValue(col, row);
+        if (value) {
+            ctx.fillStyle = 'black';
+            ctx.fillText(value, x + 5, y + 20);
+        }
+    }
+
+    /**
+     * Draws column headers for the visible range.
+     * @param {number} startCol - Starting column index.
+     * @param {number} endCol - Ending column index.
+     * @param {Set<number>} selectedColumns - Set of selected column indices.
+     */
+    drawColumnHeaders(startCol, endCol, selectedColumns) {
+        const selectedHeaders = this.getSelectedColHeadersFromCellSelection();
+        for (let col = startCol; col < endCol; col++) {
+            const x = Math.max(0, this.dimensions.getColX(col) - this.dimensions.offsets.x);
+            const y = 0;
+            ctx.strokeStyle = this.styles.gridLine;
+            ctx.lineWidth = 1;
+            this.drawColumnHeaderBackground(x, y, col, selectedColumns, selectedHeaders);
+            this.drawColumnHeaderText(x, y, col, selectedColumns, selectedHeaders);
+            this.drawColumnHeaderBorder(x, y, col, selectedHeaders);
+        }
+    }
+
+    /**
+     * Draws the background of a column header.
+     * @param {number} x - X position. 
+     * @param {number} y - Y position. 
+     * @param {number} col - Column index. 
+     * @param {Set<number>} selectedColumns - Set of selected column indices.
+     */
+    drawColumnHeaderBackground(x, y, col, selectedColumns, selectedHeaders) {
+        if (this.selectorManager.rowSelector.selectedRows.size > 0 || selectedHeaders.has(col)) {
+            ctx.fillStyle = this.styles.highlightHeaderBg;
+        } else if (selectedColumns.has(col)) {
+            ctx.fillStyle = this.styles.selectedHeaderBg;
+        } else{
+            ctx.fillStyle = this.styles.headerBg;
+        }
+        ctx.fillRect(x, y, this.dimensions.colWidths[col], CELL_HEIGHT);
+    }
+
+    /**
+     * Draws the text inside a column header.
+     * @param {number} x - X position. 
+     * @param {number} y - Y position.
+     * @param {number} col - Column index. 
+     * @param {Set<number>} selectedColumns - Set of selected column indices.
+     */
+    drawColumnHeaderText(x, y, col, selectedColumns, selectedHeaders) {
+        if(selectedColumns.has(col)) {
+            ctx.font = 'bold 14px sans-serif';
+        }
+        if (selectedColumns.has(col)) {
+            ctx.fillStyle = this.styles.selectedHeaderText;
+        } else if (this.selectorManager.rowSelector.selectedRows.size > 0 || selectedHeaders.has(col)) {
+            ctx.fillStyle = this.styles.highlightHeaderText;
+        } else{
+            ctx.fillStyle = 'black';
+        }
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(
+            this.getColumnName(col), 
+            x + this.dimensions.colWidths[col] / 2, 
+            y + CELL_HEIGHT / 2
+        );
         ctx.font = '12px sans-serif';
-        ctx.fillStyle = "black";
+        ctx.textAlign = 'start';
+        ctx.textBaseline = 'alphabetic';
+    }
 
-        const startCol = this.getStartCol(this.dimensions.offsets.x);
-        const endCol = this.getEndCol(this.dimensions.offsets.x, logicalWidth);
-        const startRow = this.getStartRow(this.dimensions.offsets.y);
-        const endRow = this.getEndRow(this.dimensions.offsets.y, logicalHeight);
+    /**
+     * Draws the border around a column header.
+     * @param {number} x - X position. 
+     * @param {number} y - Y position. 
+     * @param {number} col - Column index. 
+     */
+    drawColumnHeaderBorder(x, y, col, selectedHeaders) {
+        ctx.strokeRect(x, y, this.dimensions.colWidths[col], CELL_HEIGHT);
 
-        // Draw cells
-        // for (let row = startRow; row < endRow; row++) {
-        //     for (let col = startCol; col < endCol; col++) {
-        //         const x = this.dimensions.getColX(col) - this.dimensions.offsets.x;
-        //         const y = this.dimensions.getRowY(row) - this.dimensions.offsets.y;
-        //         ctx.strokeRect(x, y, this.dimensions.colWidths[col], this.dimensions.rowHeights[row]);
+        if (this.selectorManager.rowSelector.selectedRows.size > 0) {
+            this.drawColumnHeaderBottomBorder();
+        }
 
-                
-        //         //Skip drawing text if this cell is being edited
-        //         if (
-        //             this.selectedCell &&
-        //             this.selectedCell.col === col &&
-        //             this.selectedCell.row === row
-        //         ) {
-        //             continue;
-        //         }
+        if(selectedHeaders.has(col)) {
+            const colHeaderX = this.dimensions.getColX(col) -  this.dimensions.offsets.x;
+            const colHeaderY = CELL_HEIGHT - 1;
+            const colHeaderRightX =  colHeaderX + this.dimensions.colWidths[col];
 
-        //         //Draw cell value if it exists
-        //         const value = this.dataStore.getCellValue(col, row);
-        //         ctx.fillText(value || ``, x + 5, y + 20);
-        //     }
-        // }
-        this.drawCells(startCol, endCol, startRow, endRow);
+            ctx.strokeStyle = this.styles.selectionBorder;
+            ctx.lineWidth = 2;
+            ctx.setLineDash([]);
 
+            ctx.beginPath();
+            ctx.moveTo(colHeaderX, colHeaderY);
+            ctx.lineTo(colHeaderRightX, colHeaderY);
+            ctx.stroke();
 
-        // Draw column headers
-        // for (let col = startCol; col < endCol; col++) {
-        //     const x = Math.max(0, this.dimensions.getColX(col) - this.dimensions.offsets.x);
-        //     const y = 0;    //makes the column header is always visible
+            ctx.strokeStyle = this.styles.gridLine;
+            ctx.lineWidth = 1;
+        }
+    }
 
-        //     // Highlight selected column headers
-        //     if (this.selectedColumns.has(col)) {
-        //         ctx.fillStyle = '#107c41'; // Green header
-        //         ctx.fillRect(x, y, this.dimensions.colWidths[col], CELL_HEIGHT);
-        //         ctx.fillStyle = 'white'; // White text
-        //         // ctx.fillText(`${this.getColumnName(col)}`, x + 10, y + 20);
-        //         const colName = this.getColumnName(col);
-        //         ctx.textAlign = 'center';
-        //         ctx.textBaseline = 'middle';
-        //         ctx.fillText(colName, x + this.dimensions.colWidths[col] / 2, y + CELL_HEIGHT / 2);
-        //         ctx.textAlign = 'start';
-        //         ctx.textBaseline = 'alphabetic';
-        //     } else {
-        //         ctx.fillStyle = '#f5f5f5';
-        //         ctx.fillRect(x, y, this.dimensions.colWidths[col], CELL_HEIGHT);
-        //         ctx.fillStyle = 'black';
-        //         //ctx.fillText(`${this.getColumnName(col)}`, x + 10, y + 20);
-        //         const colName = this.getColumnName(col);
-        //         ctx.textAlign = 'center';
-        //         ctx.textBaseline = 'middle';
-        //         ctx.fillText(colName, x + this.dimensions.colWidths[col] / 2, y + CELL_HEIGHT / 2);
-        //         ctx.textAlign = 'start';
-        //         ctx.textBaseline = 'alphabetic';
-        //     }
-        //     ctx.strokeRect(x, y, this.dimensions.colWidths[col], CELL_HEIGHT);
-        // }
-        this.drawColumnHeaders(startCol, endCol);
+    /**
+     * Draws row headers for the visible range.
+     * @param {number} startRow - Starting row index.
+     * @param {number} endRow - Ending row index. 
+     * @param {Set<number>} selectedRows - Set of selected row indices.
+     */
+    drawRowHeaders(startRow, endRow, selectedRows) {
+        const selectedHeaders = this.getSelectedRowHeadersFromCellSelection();
+        for (let row = startRow; row < endRow; row++) {
+            const x = 0;
+            const y = Math.max(0, this.dimensions.getRowY(row) - this.dimensions.offsets.y);
+            const rowHeight = this.dimensions.rowHeights[row];
+            const selectedColumns = this.selectorManager.columnSelector.getSelectedColumns();
 
-        // Draw border around selected Cell
-        // if (this.selectedColumns !== null){
-        // ctx.strokeStyle = 'green';
-        // ctx.lineWidth = 2;
-        // ctx.setLineDash([]);
+            this.drawRowHeaderBackground(x, y, row, rowHeight, selectedRows, selectedHeaders);
+            this.drawRowHeaderText(x, y, row, selectedHeaders);
+            this.drawRowHeaderBorder(x, y, row, rowHeight, selectedColumns, selectedHeaders);
+        }
+    }
 
-        // const startCol = Math.min(...Array.from(this.selectedColumns));
-        // const endCol = Math.max(...Array.from(this.selectedColumns));
+    /**
+     * Draws the background of a row header.
+     * @param {number} x - X position. 
+     * @param {number} y - Y position.
+     * @param {number} row - Row index.
+     * @param {number} rowHeight - Height of the row.
+     * @param {Set<number>} selectedRows - Set of selected row indices.
+     */
+    drawRowHeaderBackground(x, y, row, rowHeight, selectedRows, selectedHeaders) {
+        if( selectedRows.has(row)) {
+            ctx.fillStyle = this.styles.selectedHeaderBg;
+        } else if (this.selectorManager.columnSelector.selectedColumns.size > 0 || selectedHeaders.has(row)) {
+            ctx.fillStyle = this.styles.highlightHeaderBg;
+        } else {
+            ctx.fillStyle = this.styles.headerBg;
+        }
+        ctx.fillRect(x, y, CELL_WIDTH, rowHeight);
+    }
 
-        // // Skip column 0 for column selection border if you want
-        // const firstCol = startCol === 0 ? 1 : startCol;
+    /**
+     * Draws the text inside a row header.
+     * @param {number} x - X position. 
+     * @param {number} y - Y position
+     * @param {number} row - Row index.
+     */
+    drawRowHeaderText(x, y, row, selectedHeaders) {
+        const selectedRows = this.selectorManager.rowSelector.selectedRows;
+        if(selectedRows.has(row)) {
+            ctx.font = 'bold 14px sans-serif';
+            ctx.fillStyle = this.styles.selectedHeaderText;
+        } else if (this.selectorManager.columnSelector.selectedColumns.size > 0 || selectedHeaders.has(row)) {
+            ctx.fillStyle = this.styles.highlightHeaderText;
+        } else {
+            ctx.fillStyle = 'black';
+        }
 
-        // const xStart = this.dimensions.getColX(firstCol) - this.dimensions.offsets.x;
-        // const xEnd = this.dimensions.getColX(endCol) - this.dimensions.offsets.x +
-        //     this.dimensions.colWidths[endCol];
-        // const width = xEnd - xStart;
+        ctx.textAlign = 'right';
+        
+        ctx.fillText(row.toString(), x + 75, y + this.dimensions.rowHeights[row] / 2);
+        //ctx.fillText(row.toString(), x + 75, y + 20);
+        ctx.font = '12px sans-serif';
+        ctx.textAlign = 'start';
+        ctx.textBaseline = 'alphabetic';
+    }
 
-        // const yStart = 0; // start at header top
-        // const height = this.dimensions.getRowY(TOTAL_ROWS) - this.dimensions.offsets.y;
+    /**
+     * Draws the border around a row header.
+     * @param {number} x - X position. 
+     * @param {number} y - Y position. 
+     * @param {number} row - Row index. 
+     * @param {number} rowHeight - Height of the row. 
+     * @param {Set<number>} selectedColumns - Set of selected column indices. 
+     */
+    drawRowHeaderBorder(x, y, row, rowHeight, selectedColumns, selectedHeaders) {
+        ctx.strokeRect(x, y, CELL_WIDTH, this.dimensions.rowHeights[row]);
 
-        // // Draw border around selected columns (including header)
-        // ctx.strokeRect(xStart, yStart, width, height);
-        // }
-        this.drawColumnSelectionBorder();
-
-        // Draw row headers with highlighting
-        // for (let row = startRow; row < endRow; row++) {
-        //     const x = 0;
-        //     const y = Math.max(0, this.dimensions.getRowY(row) - this.dimensions.offsets.y);
-
-        //     if (this.selectedColumns.size > 0) {
-        //         ctx.fillStyle = 'rgb(202, 234, 216)';
-        //         ctx.fillRect(x, y, CELL_WIDTH, this.dimensions.rowHeights[row]);
-        //     } else {
-        //         ctx.fillStyle = '#f5f5f5';
-        //         ctx.fillRect(x, y, CELL_WIDTH, this.dimensions.rowHeights[row]);
-        //     }
-
-        //     ctx.strokeStyle = '#ccc';  // or default grid border color
-        //     ctx.lineWidth = 1;
-        //     ctx.strokeRect(x, y, CELL_WIDTH, this.dimensions.rowHeights[row]);
-
-        //     ctx.fillStyle = 'black';
-        //     ctx.fillText(` ${row}`, x + 15, y + 20);
-        // }
-        this.drawRowHeaders(startRow, endRow);
-        this.drawRowSelectionBorder();
-
-        this.drawCornerCell();
-
-        // // Draw top-left corner
-        // ctx.fillStyle = '#f5f5f5';
-        // ctx.fillRect(0, 0, CELL_WIDTH, CELL_HEIGHT);
-        // ctx.strokeRect(0, 0, CELL_WIDTH, CELL_HEIGHT);
-        // ctx.fillStyle = 'black';
-        // ctx.fillText('', 5, 15);
-
-        // Draw row headers border 
-        if (this.selectedColumns.size > 0){
-            // Draw right border on the row headers (the vertical line separating row headers from columns)
-            // Right edge of row header column (usually col 0 width)
-
+        if (selectedColumns.size > 0) {
+            this.drawRowHeaderRightBorder();
+        }
+        if(selectedHeaders.has(row)) {
             const rowHeaderRightX = CELL_WIDTH - 1;
-            const rowHeaderTopY = CELL_HEIGHT;  // Start below column header
-            const rowHeaderBottomY = this.dimensions.getRowY(TOTAL_ROWS) - this.dimensions.offsets.y;
+            const rowHeaderTopY = this.dimensions.getRowY(row) - this.dimensions.offsets.y;
+            const rowHeaderBottomY = rowHeaderTopY + this.dimensions.rowHeights[row];
 
-            ctx.strokeStyle = 'green';
+            ctx.strokeStyle = this.styles.selectionBorder;
             ctx.lineWidth = 2;
             ctx.setLineDash([]);
 
@@ -245,166 +457,133 @@ export class Renderer {
             ctx.moveTo(rowHeaderRightX, rowHeaderTopY);
             ctx.lineTo(rowHeaderRightX, rowHeaderBottomY);
             ctx.stroke();
-        }
 
-        this.drawResizeGuides();
-
-        if(this.selectedCell){
-            this.drawCellSelection();
-            this.updateInputBoxPosition();
+            ctx.strokeStyle = this.styles.gridLine;
+            ctx.lineWidth = 1;
         }
 
     }
 
-
-
-
     /**
-     * Draw grid cells 
-     * @param {number} startCol 
-     * @param {number} endCol 
-     * @param {number} startRow 
-     * @param {number} endRow 
+     * Draws selection borders for selected rows and columns.
+     * @param {Set<number>} selectedColumns - Set of selected column indices.
+     * @param {Set<number>} selectedRows - Set of selected row indices.
      */
-    drawCells(startCol, endCol, startRow, endRow) {
-        for (let row = startRow; row < endRow; row++) {
-            for (let col = startCol; col < endCol; col++) {
-                const x = this.dimensions.getColX(col) - this.dimensions.offsets.x;
-                const y = this.dimensions.getRowY(row) - this.dimensions.offsets.y;
+    drawSelectionBorders(selectedColumns, selectedRows) {
+        this.drawColumnSelectionBorder(selectedColumns);
+        this.drawRowSelectionBorder(selectedRows);
 
-                //Skip if this is the cell being edited
-                if (this.selectedCell && this.selectedCell.col === col && 
-                    this.selectedCell.row === row) {
-                        continue;
-                    }
-                
-                //Draw cell background if selected
-                if (this.selectedColumns.has(col) || this.selectedRows.has(row)) {
-                    ctx.fillStyle = this.styles.selectedCellBg;
-                    ctx.fillRect(x, y, this.dimensions.colWidths[col], this.dimensions.rowHeights[row]);
-                }
+        if (selectedColumns.size > 0) {
+            this.drawRowHeaderRightBorder();
+        }
 
-                //Draw cell border
-                ctx.strokeRect(x, y, this.dimensions.colWidths[col], this.dimensions.rowHeights[row]);
-
-                //Draw cell value 
-                const value = this.dataStore.getCellValue(col, row);
-                if (value) {
-                    ctx.fillStyle = 'black';
-                    ctx.fillText(value, x + 5, y + 20);
-                }
-            }
+        if (selectedRows.size > 0) {
+            this.drawColumnHeaderBottomBorder();
         }
     }
 
     /**
-     * 
-     * @param {number} startCol 
-     * @param {number} endCol 
+     * Draws a border around selected columns.
+     * @param {Set<number>} selectedColumns - Set of selected column indices.
      */
-    drawColumnHeaders(startCol, endCol) {
-        for (let col = startCol; col < endCol; col++) {
-            const x = Math.max(0, this.dimensions.getColX(col) - this.dimensions.offsets.x);
-            const y = 0;
+    drawColumnSelectionBorder(selectedColumns) {
+        if (selectedColumns.size === 0) return;
 
-            // Header background
-            ctx.fillStyle = this.selectedColumns.has(col) ? 
-                this.styles.selectedHeaderBg : this.styles.headerBg;
-            ctx.fillRect(x, y, this.dimensions.colWidths[col], CELL_HEIGHT);
+        const startCol = Math.min(...Array.from(selectedColumns));
+        const endCol = Math.max(...Array.from(selectedColumns));
+        const firstCol = startCol === 0 ? 1 : startCol;
 
-            // Header text
-            ctx.fillStyle = this.selectedColumns.has(col) ? 
-                this.styles.selectedHeaderText : 'black';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText(
-                this.getColumnName(col), 
-                x + this.dimensions.colWidths[col] / 2, 
-                y + CELL_HEIGHT / 2
-            );
-            ctx.textAlign = 'start';
-            ctx.textBaseline = 'alphabetic';
+        const xStart = this.dimensions.getColX(firstCol) - this.dimensions.offsets.x;
+        const xEnd = this.dimensions.getColX(endCol) - this.dimensions.offsets.x +
+            this.dimensions.colWidths[endCol];
+        const width = xEnd - xStart;
 
-            // Header border
-            ctx.strokeRect(x, y, this.dimensions.colWidths[col], CELL_HEIGHT);
-        }
+        const yStart = 0;
+        const height = this.dimensions.getRowY(gridConfig.TOTAL_ROWS) - this.dimensions.offsets.y;
+
+        this.drawSelectionBorder(xStart, yStart, width, height);
     }
 
     /**
-     * 
-     * @param {number} startRow 
-     * @param {number} endRow 
+     * Draws a border around selected rows.
+     * @param {Set<number>} selectedRows - Set of selected row indices.
      */
-    drawRowHeaders(startRow, endRow) {
-        for (let row = startRow; row < endRow; row++) {
-            const x = 0;
-            const y = Math.max(0, this.dimensions.getRowY(row) - this.dimensions.offsets.y);
+    drawRowSelectionBorder(selectedRows) {
+        if (selectedRows.size === 0) return;
 
-            // Row header background
-            ctx.fillStyle = this.selectedRows.has(row) ? 
-                this.styles.selectedHeaderBg : this.styles.headerBg;
-            ctx.fillRect(x, y, CELL_WIDTH, this.dimensions.rowHeights[row]);
+        const startRow = Math.min(...Array.from(selectedRows));
+        const endRow = Math.max(...Array.from(selectedRows));
+        const firstRow = startRow === 0 ? 1 : startRow;
 
-            // Row header text
-            ctx.fillStyle = this.selectedRows.has(row) ? 
-                this.styles.selectedHeaderText : 'black';
-            ctx.fillText(row.toString(), x + 15, y + 20);
+        const yStart = this.dimensions.getRowY(firstRow) - this.dimensions.offsets.y;
+        const yEnd = this.dimensions.getRowY(endRow) - this.dimensions.offsets.y +
+            this.dimensions.rowHeights[endRow];
+        const height = yEnd - yStart;
 
-            // Row header border
-            ctx.strokeRect(x, y, CELL_WIDTH, this.dimensions.rowHeights[row]);
-        }
+        const xStart = 0;
+        const width = this.dimensions.getColX(gridConfig.TOTAL_COLS) - this.dimensions.offsets.x;
+
+        this.drawSelectionBorder(xStart, yStart, width, height);
     }
 
     /**
-     * Draws border around the selected columns
+     * Draws a generic selection border rectangle.
+     * @param {number} x - X position. 
+     * @param {number} y - Y position.
+     * @param {number} width - Width of the border. 
+     * @param {number} height - Height of the border. 
      */
-    drawColumnSelectionBorder() {
-        if (this.selectedColumns.size > 0) {
-            const startCol = Math.min(...Array.from(this.selectedColumns));
-            const endCol = Math.max(...Array.from(this.selectedColumns));
-            const firstCol = startCol === 0 ? 1 : startCol;
-
-            const xStart = this.dimensions.getColX(firstCol) - this.dimensions.offsets.x;
-            const xEnd = this.dimensions.getColX(endCol) - this.dimensions.offsets.x +
-                this.dimensions.colWidths[endCol];
-            const width = xEnd - xStart;
-
-            const yStart = 0;
-            const height = this.dimensions.getRowY(TOTAL_ROWS) - this.dimensions.offsets.y;
-
-            ctx.strokeStyle = this.styles.selectionBorder;
-            ctx.lineWidth = this.styles.selectionBorderWidth;
-            ctx.setLineDash([]);
-            ctx.strokeRect(xStart, yStart, width, height);
-        }
+    drawSelectionBorder(x, y, width, height) {
+        ctx.strokeStyle = this.styles.selectionBorder;
+        ctx.lineWidth = this.styles.selectionBorderWidth;
+        ctx.setLineDash([]);
+        ctx.strokeRect(x, y, width, height);
+        ctx.lineWidth = 1;
     }
 
     /**
-     * Draws border around the selected rows
+     * Draws a right border for the row header when columns are selected.
      */
-    drawRowSelectionBorder() {
-        if (this.selectedRows.size > 0) {
-            const startRow = Math.min(...Array.from(this.selectedRows));
-            const endRow = Math.max(...Array.from(this.selectedRows));
-            const firstRow = startRow === 0 ? 1 : startRow;
+    drawRowHeaderRightBorder() {
+        const rowHeaderRightX = CELL_WIDTH - 1;
+        const rowHeaderTopY = CELL_HEIGHT;
+        const rowHeaderBottomY = this.dimensions.getRowY(gridConfig.TOTAL_ROWS) - this.dimensions.offsets.y;
 
-            const yStart = this.dimensions.getRowY(firstRow) - this.dimensions.offsets.y;
-            const yEnd = this.dimensions.getRowY(endRow) - this.dimensions.offsets.y +
-                this.dimensions.rowHeights[endRow];
-            const height = yEnd - yStart;
+        ctx.strokeStyle = this.styles.selectionBorder;
+        ctx.lineWidth = 2;
+        ctx.setLineDash([]);
 
-            const xStart = 0;
-            const width = this.dimensions.getColX(TOTAL_COLS) - this.dimensions.offsets.x;
+        ctx.beginPath();
+        ctx.moveTo(rowHeaderRightX, rowHeaderTopY);
+        ctx.lineTo(rowHeaderRightX, rowHeaderBottomY);
+        ctx.stroke();
 
-            ctx.strokeStyle = this.styles.selectionBorder;
-            ctx.lineWidth = this.styles.selectionBorderWidth;
-            ctx.setLineDash([]);
-            ctx.strokeRect(xStart, yStart, width, height);
-        }
+        ctx.strokeStyle = this.styles.gridLine;
+        ctx.lineWidth = 1;
+
     }
-
     /**
-     * Draws the top-left header cell
+     * Draws a bottom border for the column header when rows are selected.
+     */
+    drawColumnHeaderBottomBorder() {
+        const colHeaderX = CELL_WIDTH;
+        const colHeaderY = CELL_HEIGHT - 1;
+        const colHeaderRightX = this.dimensions.getColX(gridConfig.TOTAL_COLS) - this.dimensions.offsets.x;
+
+        ctx.strokeStyle = this.styles.selectionBorder;
+        ctx.lineWidth = 2;
+        ctx.setLineDash([]);
+
+        ctx.beginPath();
+        ctx.moveTo(colHeaderX, colHeaderY);
+        ctx.lineTo(colHeaderRightX, colHeaderY);
+        ctx.stroke();
+
+        ctx.strokeStyle = this.styles.gridLine;
+        ctx.lineWidth = 1;
+    }
+    /**
+     * Draws the top-left corner cell (intersection of row and column headers).
      */
     drawCornerCell() {
         ctx.fillStyle = this.styles.headerBg;
@@ -412,145 +591,95 @@ export class Renderer {
         ctx.strokeRect(0, 0, CELL_WIDTH, CELL_HEIGHT);
     }
 
-
-
-
-
-
     /**
-     * Sets the currently selected cell.
-     * @param {number} col 
-     * @param {number} row 
+     * Draws a border around the currently selected cell.
+     * @param {{col: number, row: number}} selectedCell - The selected cell coordinates.
      */
-    setSelectedCell(col, row){
-        //console.log("Setting selected cell:", this.getColumnName(col), row);
-        this.selectedCell = {col, row};
-        this.drawGrid();
-    }
+    drawCellSelection(selectedCell) {
+        //Only draw if there's no range selectin
+        if (!selectedCell || this.selectorManager.cellSelector.selectedRange) return;
 
-    /**
-     * Clears cell selection and redraws the grid.
-     */
-    clearSelection(){
-        this.selectedCell = null;
-        this.drawGrid();
-    }
-
-    /**
-     * Draws a border around the selected cells.
-     */
-    drawCellSelection(){
-        if (!this.selectedCell) return;
-
-        // console.log("Drawing selection for:", this.selectedCell);
-        const {col,row} = this.selectedCell;
-        const x = this.dimensions.getColX(col)-this.dimensions.offsets.x;
+        const { col, row } = selectedCell;
+        const x = this.dimensions.getColX(col) - this.dimensions.offsets.x;
         const y = this.dimensions.getRowY(row) - this.dimensions.offsets.y;
         const width = this.dimensions.colWidths[col];
         const height = this.dimensions.rowHeights[row];
 
-        if(x === 0 || y === 0) return;
+        if (x <= 0 || y <= 0) return;
 
-        ctx.strokeStyle = 'green';
+
+        ctx.strokeStyle = this.styles.selectionBorder;
         ctx.lineWidth = 2;
         ctx.setLineDash([]);
-        ctx.strokeRect(x,y,width,height);
-
+        ctx.strokeRect(x+1, y+1, width, height);
+        ctx.lineWidth = 1;
     }
 
-    /**
-     * Repositions the input box for editing the selected cell.
-     */
-    updateInputBoxPosition() {
-        if (!this.cellEditor || !this.cellEditor.inputElement || !this.selectedCell) {
-            return;
-        }
-
-        const { col, row } = this.selectedCell;
-        const inputElement = this.cellEditor.inputElement;
-
-        try {
-            const x = this.dimensions.getColX(col);
-            const y = this.dimensions.getRowY(row);
-            const width = this.dimensions.colWidths[col];
-            const height = this.dimensions.rowHeights[row];
-
-            if (x <= 0 || y <= 0) {
-                inputElement.style.display = 'none';
-                return;
-            }
-
-            // Safely apply styles
-            inputElement.style.left = `${x}px`;
-            inputElement.style.top = `${y}px`;
-            inputElement.style.width = `${width}px`;
-            inputElement.style.height = `${height}px`;
-            inputElement.style.display = 'block';
-        } catch (error) {
-            console.error('Error in updateInputBoxPosition:', error);
-            if (inputElement) {
-                inputElement.style.display = 'none';
-            }
-        }
-    }
 
     /**
-     * Draws visual resize indicators during column/row resizing.
+     * Draws visual guides during column or row resizing.
+     * has solid rectangles and dashed lines to indicate resize boundaries.
      */
     drawResizeGuides() {
         if (this.dimensions.resizeState.col !== null) {
+            
             const colLeft = this.dimensions.getColX(this.dimensions.resizeState.col) - this.dimensions.offsets.x;
-            const totalGridHeight = this.dimensions.getRowY(TOTAL_ROWS);
+            const totalGridHeight = this.dimensions.getRowY(gridConfig.TOTAL_ROWS);
             
             // Solid rectangle around column
             ctx.strokeStyle = RESIZE_COLOR;
             ctx.lineWidth = RESIZE_GUIDE_WIDTH;
             ctx.setLineDash([]);
-            ctx.strokeRect(colLeft, 0, CELL_WIDTH, totalGridHeight);
+            ctx.strokeRect(colLeft, CELL_HEIGHT,this.selectorManager.columnResizing.originalColWidth, totalGridHeight);
 
             // Dashed line at resize position
             const currentX = this.dimensions.getColX(this.dimensions.resizeState.col) + this.dimensions.colWidths[this.dimensions.resizeState.col] - this.dimensions.offsets.x;
             ctx.strokeStyle = RESIZE_COLOR;
             ctx.setLineDash([5, 3]);
             ctx.beginPath();
-            ctx.moveTo(currentX, 0);
+            ctx.moveTo(currentX, CELL_HEIGHT);
             ctx.lineTo(currentX, totalGridHeight);
             ctx.stroke();
             ctx.setLineDash([]);
+            ctx.lineWidth = 1;
         }
+
+
 
         if (this.dimensions.resizeState.row !== null) {
             const rowTop = this.dimensions.getRowY(this.dimensions.resizeState.row) - this.dimensions.offsets.y;
-            const totalGridWidth = this.dimensions.getColX(TOTAL_COLS);
+            const totalGridWidth = this.dimensions.getColX(gridConfig.TOTAL_COLS);
 
             // Solid rectangle around row
             ctx.strokeStyle = RESIZE_COLOR;
             ctx.lineWidth = RESIZE_GUIDE_WIDTH;
             ctx.setLineDash([]);
-            ctx.strokeRect(0, rowTop, totalGridWidth, CELL_HEIGHT);
+            ctx.strokeRect(CELL_WIDTH, rowTop, totalGridWidth, this.selectorManager.rowResizing.originalRowHeight);
 
             // Dashed line at resize position
             const currentY = this.dimensions.getRowY(this.dimensions.resizeState.row) + this.dimensions.rowHeights[this.dimensions.resizeState.row] - this.dimensions.offsets.y;
             ctx.strokeStyle = RESIZE_COLOR;
             ctx.setLineDash([5, 3]);
             ctx.beginPath();
-            ctx.moveTo(0, currentY);
+            ctx.moveTo(CELL_WIDTH, currentY);
             ctx.lineTo(totalGridWidth, currentY);
             ctx.stroke();
             ctx.setLineDash([]);
+            ctx.lineWidth = 1;
         }
     }
 
     /**
-     * Binary search for finding the first visible column in virtual grid
-     * @param {number} offsetX 
-     * @returns {number} 
+     * Finds the first visible column using binary search based on horizontal scroll offset.
+     * Adds a buffer to ensure visibility during resizing.
+     * @param {number} offsetX - Horizontal scroll offset.
+     * @returns {number} Index of the first visible column
      */
     getStartCol(offsetX) {
         if (offsetX <= 0) return 0;
 
         let left = 0;
-        let right = TOTAL_COLS;
+        let right = gridConfig.TOTAL_COLS;
         let result = 0;
 
         while (left <= right) {
@@ -567,23 +696,23 @@ export class Renderer {
     }
 
     /**
-     * Binary search for finding the last visible column 
-     * @param {number} offsetX 
-     * @param {number} viewWidth 
-     * @returns {number}
+     * Finds the last visible column using binary search based on scroll offset and viewport width.
+     * @param {number} offsetX - Horizontal scroll offset.
+     * @param {number} viewWidth - Width of the visible viewport.
+     * @returns {number} Index of the last visible column.
      */
     getEndCol(offsetX, viewWidth) {
         const target = offsetX + viewWidth;
-        if (target >= this.dimensions.getColX(TOTAL_COLS)) return TOTAL_COLS;
+        if (target >= this.dimensions.getColX(gridConfig.TOTAL_COLS)) return gridConfig.TOTAL_COLS;
 
         let left = this.getStartCol(offsetX);
-        let right = TOTAL_COLS;
-        let result = TOTAL_COLS;
+        let right = gridConfig.TOTAL_COLS;
+        let result = gridConfig.TOTAL_COLS;
 
         while (left <= right) {
             const mid = Math.floor((left + right) / 2);
-            if ((mid < TOTAL_COLS - 1 && this.dimensions.cumulativeColWidths[mid] >= target) ||
-                (mid === TOTAL_COLS - 1 && this.dimensions.cumulativeColWidths[mid] >= target)) {
+            if ((mid < gridConfig.TOTAL_COLS - 1 && this.dimensions.cumulativeColWidths[mid] >= target) ||
+                (mid === gridConfig.TOTAL_COLS - 1 && this.dimensions.cumulativeColWidths[mid] >= target)) {
                 result = mid;
                 right = mid - 1;
             } else {
@@ -591,23 +720,24 @@ export class Renderer {
             }
         }
 
-        if (result < TOTAL_COLS - 1 && this.dimensions.cumulativeColWidths[result] < target) {
+        if (result < gridConfig.TOTAL_COLS - 1 && this.dimensions.cumulativeColWidths[result] < target) {
             result++;
         }
 
-        return Math.min(result + 1, TOTAL_COLS);
+        return Math.min(result + 1, gridConfig.TOTAL_COLS);
     }
 
     /**
-     * 
-     * @param {number} offsetY 
-     * @returns {number}
+     * Finds the first visible row using binary search based on vertical scroll offset.
+     * Adds a buffer to ensure visibility during resizing.
+     * @param {number} offsetY - Vertical scroll offset.
+     * @returns {number} Index of the first visible row.
      */
     getStartRow(offsetY) {
         if (offsetY <= 0) return 0;
 
         let left = 0;
-        let right = TOTAL_ROWS;
+        let right = gridConfig.TOTAL_ROWS;
         let result = 0;
 
         while (left <= right) {
@@ -624,23 +754,23 @@ export class Renderer {
     }
 
     /**
-     * 
-     * @param {number} offsetY 
-     * @param {number} viewHeight 
-     * @returns {number}
+     * Finds the last visible row using binary search based on scroll offset and viewport height.
+     * @param {number} offsetY - Vertical scroll offset.
+     * @param {number} viewHeight - Height of the visible viewport.
+     * @returns {number} Index of the last visible row.
      */
     getEndRow(offsetY, viewHeight) {
         const target = offsetY + viewHeight;
-        if (target >= this.dimensions.getRowY(TOTAL_ROWS)) return TOTAL_ROWS;
+        if (target >= this.dimensions.getRowY(gridConfig.TOTAL_ROWS)) return gridConfig.TOTAL_ROWS;
 
         let left = this.getStartRow(offsetY);
-        let right = TOTAL_ROWS;
-        let result = TOTAL_ROWS;
+        let right = gridConfig.TOTAL_ROWS;
+        let result = gridConfig.TOTAL_ROWS;
 
         while (left <= right) {
             const mid = Math.floor((left + right) / 2);
-            if ((mid < TOTAL_ROWS - 1 && this.dimensions.cumulativeRowHeights[mid] >= target) ||
-                (mid === TOTAL_ROWS - 1 && this.dimensions.cumulativeRowHeights[mid] >= target)) {
+            if ((mid < gridConfig.TOTAL_ROWS - 1 && this.dimensions.cumulativeRowHeights[mid] >= target) ||
+                (mid === gridConfig.TOTAL_ROWS - 1 && this.dimensions.cumulativeRowHeights[mid] >= target)) {
                 result = mid;
                 right = mid - 1;
             } else {
@@ -648,17 +778,17 @@ export class Renderer {
             }
         }
 
-        if (result < TOTAL_ROWS - 1 && this.dimensions.cumulativeRowHeights[result] < target) {
+        if (result < gridConfig.TOTAL_ROWS - 1 && this.dimensions.cumulativeRowHeights[result] < target) {
             result++;
         }
 
-        return Math.min(result+1, TOTAL_ROWS - 1);
+        return Math.min(result+1, gridConfig.TOTAL_ROWS - 1);
     }
 
     /**
-     * Converts a numeric column index to a spreadsheet-style name 
-     * @param {number} index 
-     * @returns {String}
+     * Converts a numeric column index to a spreadsheet-style name (e.g., A, B, ..., Z, AA, AB, ...).
+     * @param {number} index - Column index (1-based).
+     * @returns {String} Spreadsheet-style column name.
      */
     getColumnName(index){
         let result = "";

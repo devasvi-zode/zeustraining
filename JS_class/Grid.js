@@ -5,8 +5,10 @@ import { CellEditor } from "./CellEditor.js";
 import {cell_data} from './cell_data.js';
 import { CommandManager } from './CommandManager.js';
 import { JsonGridLoader } from './JsonGridLoader.js';
-import { ColumnSelector } from "./ColumnSelector.js";
-import { RowSelector } from "./RowSelector.js";
+import { SelectorManager } from "./SelectorManager.js";
+import { AddRow } from "./AddRow.js";
+import { Stats } from './Stats.js';
+import { canvas } from "./dom-elements.js";
 
 export class Grid {
     /**
@@ -15,44 +17,25 @@ export class Grid {
      * loading, and column selection components.
      */
     constructor() {
-        /**
-         * @type {DimensionsManager}
-         */
         this.dimensions = new DimensionsManager();
-
-        /**
-         * @type {cell_data}
-         */
         this.cell_data = new cell_data();
-
-        /**
-         * @type {CommandManager}
-         */
         this.commandManager = new CommandManager();
+        this.renderer = new Renderer(this.dimensions,this.cell_data, null,null);
+        this.eventManager = new EventManager(this.dimensions, this.renderer,this.commandManager, null);
+        
+        this.SelectorManager = new SelectorManager(this.dimensions, this.commandManager,this.renderer);
+        this.renderer.selectorManager = this.SelectorManager;
+        this.renderer.eventManager = this.eventManager;
 
-        /**
-         * @type {Renderer}
-         */
-        this.renderer = new Renderer(this.dimensions,this.cell_data);
-
-        /**
-         * @type {EventManager}
-         */
-        this.eventManager = new EventManager(this.dimensions, this.renderer,this.commandManager);
-
-        /**
-         * @type {CellEditor}
-         */
         this.cellEditor = new CellEditor(
             this.dimensions, 
             this.renderer, 
             this.cell_data, 
-            this.commandManager
+            this.commandManager,
+            this.SelectorManager
         );
+        this.eventManager.cellEditor = this.cellEditor;
 
-        /**
-         * @type {JsonGridLoader}
-         */
         this.JsonGridLoader = new JsonGridLoader(
             json_button,
             json_file_input,
@@ -60,36 +43,40 @@ export class Grid {
             this.renderer
         );
 
-        /**
-         * @type {ColumnSelector}
-         */
-        this.columnSelector = new ColumnSelector(this.dimensions, this.renderer, this.commandManager);
-        /**
-         * @type {RowSelector}
-         */
-        this.rowSelector = new RowSelector(this.dimensions, this.renderer, this.commandManager);
+        this.stats = new Stats(
+            this.dimensions,
+            this.renderer,
+            this.SelectorManager,
+            this.cell_data
+        );
+        this.SelectorManager.stats = this.stats;
 
-        // Register cell editor with renderer for editing support
-        this.renderer.registerCellEditor(this.cellEditor);
+        //this.AddRow = new AddRow(this.dimensions, this.renderer, this.SelectorManager, add_row);
 
         this.init();
-
+        this.initEventListneres();
     }
 
     /**
-     * Performs initial setup including canvas resizing,
-     * Layout updat , inital rendering, event listener setup,
-     * and enabling cell editing and column selection.
+     * Performs initial setup including Layout update, and inital rendering
      */
     init(){
         this.dimensions.resizeCanvasToWrapper();
         this.dimensions.updateLayout();
         this.renderer.drawGrid();
+    }
+
+    /**
+     * Performs initial setup including canvas resizing, event listener setup
+     */
+    initEventListneres() {
         this.eventManager.setupEventListener();
-        this.cellEditor.setupCellEditing();
-        this.columnSelector.setupColumnSelection();
-        this.rowSelector.setupRowSelection();
-        
+        this.SelectorManager.setupEventListners();
+
+        canvas.addEventListener('dblclick', (e) => {
+            this.cellEditor.handleCellDoubleClick(e);
+        });
+
         window.addEventListener('resize', () => {
             this.dimensions.resizeCanvasToWrapper();
             this.renderer.drawGrid();

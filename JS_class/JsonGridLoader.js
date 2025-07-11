@@ -1,5 +1,5 @@
 import { rowHeights } from "../js/dimensions.js";
-import { TOTAL_COLS, TOTAL_ROWS } from "./config.js";
+import { TOTAL_COLS, TOTAL_ROWS, gridConfig } from "./config.js";
 
 /**
  * Class responsible for loading JSON data into the grid.
@@ -84,7 +84,7 @@ export class JsonGridLoader {
                 keys.forEach((key, colIndex) => {
                     this.dataStore.setCellValue(colIndex+1, rowIndex+2, record[key]);
                 });
-                if(rowIndex + 2 >= TOTAL_ROWS) return;
+                if(rowIndex + 2 >= gridConfig.TOTAL_ROWS) return;
             });
         }
 

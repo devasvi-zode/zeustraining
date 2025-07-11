@@ -1,12 +1,21 @@
-import { CELL_WIDTH, CELL_HEIGHT, TOTAL_COLS, TOTAL_ROWS } from "./config.js";
+import { CELL_WIDTH, CELL_HEIGHT, TOTAL_COLS, TOTAL_ROWS , gridConfig} from "./config.js";
 import { canvas, wrapper, scroller} from './dom-elements.js';
 
+/**
+ * Manages dimensions and layout of a grid, including column widths, row heights,
+ * scroll offsets, and canvas resizing. Also handles cumulative dimension calculations
+ * for efficient coordinate mapping.
+ */
 export class DimensionsManager{
+    /**
+     * Initializes the DimensionsManager with default column and row sizes,
+     * and computes cumulative dimensions.
+     */
     constructor(){
-        this.colWidths = new Array(TOTAL_COLS).fill(Math.floor(CELL_WIDTH));
-        this.rowHeights = new Array(TOTAL_ROWS).fill(Math.floor(CELL_HEIGHT));
-        this.cumulativeColWidths = new Array(TOTAL_COLS);
-        this.cumulativeRowHeights = new Array(TOTAL_ROWS);
+        this.colWidths = new Array(gridConfig.TOTAL_COLS).fill(Math.floor(CELL_WIDTH));
+        this.rowHeights = new Array(gridConfig.TOTAL_ROWS).fill(Math.floor(CELL_HEIGHT));
+        this.cumulativeColWidths = new Array(gridConfig.TOTAL_COLS);
+        this.cumulativeRowHeights = new Array(gridConfig.TOTAL_ROWS);
         this.offsets = { x:0, y:0 };
         this.resizeState = {
             col: null,
@@ -18,23 +27,23 @@ export class DimensionsManager{
         this.updateCumulativeDimensions();
     }
 
+    /**
+     * Updates layout-related properties including cumulative dimensions,
+     * canvas size, and scroll clamping.
+     */
     updateLayout(){
         this.updateCumulativeDimensions();
-        scroller.style.width = `${this.getColX(TOTAL_COLS) }px`;
-        scroller.style.height = `${this.getRowY(TOTAL_ROWS) }px`;
+        scroller.style.width = `${this.getColX(gridConfig.TOTAL_COLS) }px`;
+        scroller.style.height = `${this.getRowY(gridConfig.TOTAL_ROWS) }px`;
         this.resizeCanvasToWrapper();
         this.clampOffset();
-        console.log("Calculated total width:", this.getColX(TOTAL_COLS));
-        console.log("Scroller width:", scroller.offsetWidth);
-        console.log("Calculated total height:", this.getRowY(TOTAL_ROWS));
-        console.log("Scroller height:", scroller.offsetHeight);
-        console.log("Last column width:",
-            this.colWidths[this.colWidths.length - 1],
-            "Total drift:",
-            400000 - this.cumulativeColWidths[TOTAL_COLS - 1]
-        );
     }
 
+    /**
+     * Resizes the canvas to match the wrapper's dimensions and applies
+     * device pixel ratio scaling for crisp rendering.
+     * @returns {{dpr: number, wrapperWidth: number, wrappperHeight: number}} - Rendering context info.
+     */
     resizeCanvasToWrapper(){
         const dpr = window.devicePixelRatio || 1;
         const wrapperRect = wrapper.getBoundingClientRect();
@@ -55,25 +64,32 @@ export class DimensionsManager{
         return { dpr, wrapperWidth, wrappperHeight};
     }
 
+    /**
+     * Recalculates cumulative column and row dimensions for fast lookup.
+     */
     updateCumulativeDimensions(){
         let colSum = 0;
-        for (let i=0; i<TOTAL_COLS; i++){
+        for (let i=0; i<gridConfig.TOTAL_COLS; i++){
             this.colWidths[i] = Math.floor(this.colWidths[i]);
             colSum += this.colWidths[i];
             this.cumulativeColWidths[i] = colSum;
         }
 
         let rowSum = 0;
-        for( let j=0; j<TOTAL_ROWS; j++){
+        for( let j=0; j<gridConfig.TOTAL_ROWS; j++){
             this.rowHeights[j] = Math.floor(this.rowHeights[j]);
             rowSum += this.rowHeights[j];
             this.cumulativeRowHeights[j] = rowSum;
         }
     }
 
+    /**
+     * Clamps the scroll offsets to ensure the viewport stays within bounds.
+     * Adjusts offsets based on resize state if necessary.
+     */
     clampOffset(){
-        const maxOffsetX = Math.max(0, this.getColX(TOTAL_COLS)- wrapper.clientWidth);
-        const maxOffsetY = Math.max(0, this.getRowY(TOTAL_ROWS) - wrapper.clientHeight);
+        const maxOffsetX = Math.max(0, this.getColX(gridConfig.TOTAL_COLS)- wrapper.clientWidth);
+        const maxOffsetY = Math.max(0, this.getRowY(gridConfig.TOTAL_ROWS) - wrapper.clientHeight);
 
         if(this.resizeState.col !== null){
             const colRightEdge = this.getColX(this.resizeState.col + 1);
@@ -89,7 +105,7 @@ export class DimensionsManager{
             const viewportBottom = this.offsets.y + wrapper.clientHeight;
 
             if(rowBottomEdge > viewportBottom){
-                this.offsets.y = Math.min(maxOffsetY, rowBottomEdge - wrappperHeight);
+                this.offsets.y = Math.min(maxOffsetY, rowBottomEdge - wrapper.clientHeight);
             }
         }
 
@@ -100,18 +116,37 @@ export class DimensionsManager{
         wrapper.scrollTop = this.offsets.y;
     }
 
+    /**
+     * Returns the X coordinate (in pixels) of the left edge of a given column.
+     * @param {number} col - Column index. 
+     * @returns {number} X position in pixels.
+     */
     getColX(col){
         return col === 0 ? 0 : this.cumulativeColWidths[col-1];
     }
 
+    /**
+     * Returns the Y coordinate (in pixels) of the top edge of a given row.
+     * @param {number} row - Row index. 
+     * @returns {number} Y position in pixels.
+     */
     getRowY(row){
         return row === 0 ? 0 : this.cumulativeRowHeights[row-1];
     }
+
+    /**
+     * Returns the total width of all columns combined.
+     * @returns {number} Total grid width in pixels.
+     */
     getTotalWidth() {
-    return this.cumulativeColWidths[TOTAL_COLS - 1]; // total grid width
+    return this.cumulativeColWidths[gridConfig.TOTAL_COLS - 1]; // total grid width
     }
 
+    /**
+     * Returns the total height of all rows combined.
+     * @returns {number} Total grid height in pixels.
+     */
     getTotalHeight() {
-        return this.cumulativeRowHeights[TOTAL_ROWS - 1]; // total grid height
+        return this.cumulativeRowHeights[gridConfig.TOTAL_ROWS - 1]; // total grid height
     }
 }

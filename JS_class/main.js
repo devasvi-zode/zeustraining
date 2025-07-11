@@ -5,7 +5,15 @@ import { Grid } from './grid.js';
  * Instantiates a new Grid, which sets up rendering, event handling,
  * editing, JSON loading, and command management.
  */
-console.log("main is working");
 
-/** @type {Grid} */
-new Grid();
+document.addEventListener('DOMContentLoaded', () => {
+    const grid = new Grid(); // Your grid setup
+
+    document.getElementById('undo').addEventListener('click', () => {
+        grid.undo();
+    });
+
+    document.getElementById('redo').addEventListener('click', () => {
+        grid.redo();
+    });
+});

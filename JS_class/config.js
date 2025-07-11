@@ -18,6 +18,15 @@ export const TOTAL_COLS = 5000;
 export const TOTAL_ROWS = 100000;
 
 /**
+ * Total number of rows and columns in the grid
+ * @type {Object.<number, number>}
+ */
+export const gridConfig = {
+  TOTAL_ROWS: 100000,
+  TOTAL_COLS: 5000,
+};
+
+/**
  * @type {String} - Color used for the column/row reisze guide;
  */
 export const RESIZE_COLOR = '#135c2e';
@@ -35,5 +44,6 @@ export const CELL_EDITING_STYLE = {
     fontSize: '12px',
     fontFamily: 'sans-serif',
     outline: 'none',
+    border: 'none',
     boxSizing: 'border-box',
 };
