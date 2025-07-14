@@ -422,9 +422,8 @@ export class Renderer {
         }
 
         ctx.textAlign = 'right';
-        
+        ctx.textBaseline = 'middle';
         ctx.fillText(row.toString(), x + 75, y + this.dimensions.rowHeights[row] / 2);
-        //ctx.fillText(row.toString(), x + 75, y + 20);
         ctx.font = '12px sans-serif';
         ctx.textAlign = 'start';
         ctx.textBaseline = 'alphabetic';
@@ -550,7 +549,7 @@ export class Renderer {
         const rowHeaderBottomY = this.dimensions.getRowY(gridConfig.TOTAL_ROWS) - this.dimensions.offsets.y;
 
         ctx.strokeStyle = this.styles.selectionBorder;
-        ctx.lineWidth = 2;
+        ctx.lineWidth = 1.5;
         ctx.setLineDash([]);
 
         ctx.beginPath();
@@ -571,7 +570,7 @@ export class Renderer {
         const colHeaderRightX = this.dimensions.getColX(gridConfig.TOTAL_COLS) - this.dimensions.offsets.x;
 
         ctx.strokeStyle = this.styles.selectionBorder;
-        ctx.lineWidth = 2;
+        ctx.lineWidth = 1.5;
         ctx.setLineDash([]);
 
         ctx.beginPath();

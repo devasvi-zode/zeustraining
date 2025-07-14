@@ -25,12 +25,12 @@ export class CellEditor {
 
         // Access cellSelector through selectorManager
         this.cellSelector = this.selectorManager.cellSelector;
-        
+
         if (!this.cellSelector) {
             console.warn("CellEditor: cellSelector not available yet.");
         }
 
-         this.focusCheckInterval = setInterval(() => this.protectFocus(), 500);
+        this.focusCheckInterval = setInterval(() => this.protectFocus(), 500);
 
         this.activeCell = null;     // The cell currently being edited
         this.inputElement = null;   // The input element for editing
@@ -57,6 +57,8 @@ export class CellEditor {
                 console.log('Editor input lost focus');
             }
         });
+
+        document.addEventListener('keydown', this.handleDocumentKeyDown.bind(this));
     }
 
     /**
@@ -97,7 +99,7 @@ export class CellEditor {
     handleCellDoubleClick = (e) => {
         const cell = this.selectorManager.cellSelector.getCellFromEvent(e);
         if (!cell || cell.col === null || cell.row === null) return;
-        
+
         // Only start editing if not currently selecting
         if (!this.selectorManager.cellSelector.isSelecting) {
             this.startEditing(cell.col, cell.row);
@@ -107,7 +109,7 @@ export class CellEditor {
     /**
      * Starts editing a specific cell
      */
-    startEditing(col, row) {
+    startEditing(col, row, autoSelect = true) {
         if (this.selectorManager.cellSelector.isSelecting) return;
 
         this.activeCell = { col, row };
@@ -116,10 +118,12 @@ export class CellEditor {
         const currentValue = this.cell_data.getCellValue(col, row) || '';
         this.inputElement.value = currentValue;
         this.inputElement.style.display = 'block';
-        setTimeout(() => {
-            this.inputElement.focus();
-            this.inputElement.select();
-        }, 50);
+        if (autoSelect) {
+            setTimeout(() => {
+                this.inputElement.focus();
+                this.inputElement.select();
+            }, 50);
+        }
     }
 
     /**
@@ -153,224 +157,179 @@ export class CellEditor {
      * Updates the input box position to match the active cell
      */
     updateInputBoxPosition() {
-    if (!this.activeCell || !this.inputElement) {
-        console.log('No active cell or input element');
-        this.inputElement.style.display = 'none';
-        return;
+        if (!this.activeCell || !this.inputElement) {
+            this.inputElement.style.display = 'none';
+            return;
+        }
+
+        const { col, row } = this.activeCell;
+        const padding = 3;
+
+        try {
+            const x = this.dimension.getColX(col);
+            const y = this.dimension.getRowY(row);
+            const width = this.dimension.colWidths[col];
+            const height = this.dimension.rowHeights[row];
+
+            if (x <= 0 || y <= 0) {
+                this.inputElement.style.display = 'none';
+                return;
+            }
+
+            // Convert to screen position (relative to canvas/view)
+            const screenX = x - this.dimension.offsets.x;
+            const screenY = y - this.dimension.offsets.y;
+
+            // Constants for header sizes
+            const ROW_HEADER_WIDTH = 80;
+            const COLUMN_HEADER_HEIGHT = 30;
+
+            // Hide if overlapping headers
+            if ((screenX >= 0 && screenX < ROW_HEADER_WIDTH) || (screenY >= 0 && screenY < COLUMN_HEADER_HEIGHT)) {
+                this.inputElement.style.display = 'none';
+                return;
+            }
+
+            Object.assign(this.inputElement.style, {
+                left: `${x + padding}px`,
+                top: `${y + padding}px`,
+                width: `${width - 2 * padding}px`,
+                height: `${height - 2 * padding}px`,
+                display: 'block'
+            });
+
+            console.log(`Input box positioned at ${x},${y}`);
+        } catch (error) {
+            console.error('Position update failed:', error);
+            this.inputElement.style.display = 'none';
+        }
     }
 
-    const { col, row } = this.activeCell;
-    const padding = 3;
+    /**
+     * Handles keydown events at document level to start editing on typing
+     * @param {*} e 
+     */
 
-    try {
-        const x = this.dimension.getColX(col);
-        const y = this.dimension.getRowY(row);
-        const width = this.dimension.colWidths[col];
-        const height = this.dimension.rowHeights[row];
 
-        if (x <= 0 || y <= 0) {
-            this.inputElement.style.display = 'none';
-            return;
-        }
+handleDocumentKeyDown(e) {
+    // If already editing, let the input element handle it
+    if (this.activeCell || !this.selectorManager) return;
+
+    const selectedCell = this.selectorManager.cellSelector.getSelectedCell();
+    if (!selectedCell) return;
+
+
+    // Handle printable characters
+    if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        e.preventDefault();
         
-                // Convert to screen position (relative to canvas/view)
-        const screenX = x - this.dimension.offsets.x;
-        const screenY = y - this.dimension.offsets.y;
+        this.startEditing(selectedCell.col, selectedCell.row, false); // Don't auto-select
 
-        // Constants for header sizes
-        const ROW_HEADER_WIDTH = 80;
-        const COLUMN_HEADER_HEIGHT = 30;
+        setTimeout(() => {
+            if (this.inputElement) {
+                this.inputElement.focus();
+                this.inputElement.value = e.key;
+                
+                // Move cursor to end without selecting
+                const length = this.inputElement.value.length;
+                this.inputElement.setSelectionRange(length, length);
+            }
+        }, 0);
+    }
+    // Handle Delete/Backspace
+    else if (e.key === 'Delete' || e.key === 'Backspace') {
+        e.preventDefault();
 
-        // Hide if overlapping headers
-        if ((screenX >= 0 && screenX < ROW_HEADER_WIDTH) || (screenY >= 0 && screenY < COLUMN_HEADER_HEIGHT)) {
-            this.inputElement.style.display = 'none';
-            return;
-        }
+        this.startEditing(selectedCell.col, selectedCell.row, false); // Don't auto-select
 
-        Object.assign(this.inputElement.style, {
-            left: `${x + padding}px`,
-            top: `${y + padding}px`,
-            width: `${width - 2 * padding}px`,
-            height: `${height - 2 * padding}px`,
-            display: 'block'
-        });
-
-        console.log(`Input box positioned at ${x},${y}`);
-    } catch (error) {
-        console.error('Position update failed:', error);
-        this.inputElement.style.display = 'none';
+        setTimeout(() => {
+            if (this.inputElement) {
+                this.inputElement.focus();
+                this.inputElement.value = '';
+            }
+        }, 0);
+    }
+    // Handle Enter to start editing
+    // else if (e.key === 'Enter') {
+    //     e.preventDefault();
+    //     this.startEditing(selectedCell.col, selectedCell.row, true); // Auto-select existing content
+    // }
+    // Handle F2 to start editing (Excel-like behavior)
+    else if (e.key === 'F2') {
+        e.preventDefault();
+        this.startEditing(selectedCell.col, selectedCell.row, true); // Auto-select existing content
     }
 }
 
-//     handleKeyDown(e) {
-//         if (!this.inputElement) {
-//             console.error('Input element missing in key handler');
-//             return;
-//         }
-
-//         // Focus restoration
-//         if (!this.isInputFocused() && this.activeCell) {
-//            console.log('Restoring focus in key handler');
-//             this.inputElement.focus();
-//             return;
-//         }
-
-//         if (!this.activeCell) {
-//             console.warn('Key event with no active cell - checking state');
-//             this.protectFocus();
-//             if (!this.activeCell) return;
-//         }
-        
-
-//     let { col, row } = this.activeCell;
-//     let newCol = col;
-//     let newRow = row;
-//    console.log(`Current cell: col ${col}, row ${row}`);
-
-//     switch(e.key) {
-//         case 'Enter':
-//            console.log('Enter key pressed');
-//             this.navigatingWithKeyboard = true;
-//             e.preventDefault();
-//             this.finishEditing();
-//             newRow = Math.min(TOTAL_ROWS - 1, row + (e.shiftKey ? -1 : 1));
-//             this.navigatingWithKeyboard = false;
-//             break;
-            
-//         case 'Escape':
-//            console.log('Escape key pressed');
-//             this.inputElement.value = this.cell_data.getCellValue(col, row) || '';
-//             this.finishEditing();
-//             return;
-            
-//         case 'Tab':
-//            console.log('Tab key pressed');
-//             e.preventDefault();
-//             this.finishEditing();
-//             newCol = Math.max(0, Math.min(TOTAL_COLS - 1, col + (e.shiftKey ? -1 : 1)));
-//             break;
-            
-//         case 'ArrowUp': 
-//             if (this.inputElement.selectionStart === this.inputElement.selectionEnd) {
-//                 e.preventDefault();
-//                 this.finishEditing();
-//                 newRow = Math.max(0, row - 1);
-//             }
-//             break;
-            
-//         case 'ArrowDown':
-//             if (this.inputElement.selectionStart === this.inputElement.selectionEnd) {
-//                 e.preventDefault();
-//                 this.finishEditing();
-//                 newRow = Math.min(TOTAL_ROWS - 1, row + 1);
-//             }
-//             break;
-            
-//         case 'ArrowLeft':
-//             if (this.inputElement.selectionStart === this.inputElement.selectionEnd) {
-//                 e.preventDefault();
-//                 this.finishEditing();
-//                 newCol = Math.max(0, col - 1);
-//             }
-//             break;
-            
-//         case 'ArrowRight':
-//             if (this.inputElement.selectionStart === this.inputElement.selectionEnd) {
-//                 e.preventDefault();
-//                 this.finishEditing();
-//                 newCol = Math.min(TOTAL_COLS - 1, col + 1);
-//             }
-//             break;
-            
-//         default:
-//            console.log('Other key pressed:', e.key);
-//             return; // Don't prevent default for other keys
-//     }
-
-//     // Only start editing if we actually moved to a new cell
-//     if (newCol !== col || newRow !== row) {
-//        console.log(`Moving to new cell: col ${newCol}, row ${newRow}`);
-//         this.selectorManager.cellSelector.setSelectedCell(newCol, newRow);
-//         this.startEditing(newCol, newRow);
-//         this.renderer.drawGrid();
-//     }else{
-//        // console.log('Staying in same cell');
-//     }
-// }
     /**
-     * Handles keyboard events during editing
+     * Enhanced keydown handler for navigation 
      */
-    // handleKeyDown(e) {
-    //     if (!this.activeCell) return;
+    handleKeyDown(e) {
+        if (!this.activeCell) return;
 
-    //     let { col, row } = this.activeCell;
+        let { col, row } = this.activeCell;
 
-    //     switch(e.key) {
-    //         case 'Enter':
-    //             e.preventDefault();
-    //             this.finishEditing();
-    //             newRow = Math.min(TOTAL_ROWS - 1, newRow + (e.shiftKey ? -1 : 1));
-    //             break;
-                
-    //         case 'Escape':
-    //             this.inputElement.value = this.cell_data.getCellValue(col, row) || '';
-    //             this.finishEditing();
-    //             return;
-                
-    //         case 'Tab':
-    //             e.preventDefault();
-    //             this.finishEditing();
-    //             newCol = Math.max(0, Math.min(TOTAL_COLS - 1, newCol + (e.shiftKey ? -1 : 1)));
-    //             break;
-                
-    //         case 'ArrowUp': 
-    //             if (this.inputElement.selectionStart === this.inputElement.selectionEnd) {
-    //                 e.preventDefault();
-    //                 this.finishEditing();
-    //                 newRow = Math.max(0, newRow - 1);
-    //             }
-    //             break;
-                
-    //         case 'ArrowDown':
-    //             if (this.inputElement.selectionStart === this.inputElement.selectionEnd) {
-    //                 e.preventDefault();
-    //                 this.finishEditing();
-    //                 newRow = Math.min(TOTAL_ROWS - 1, newRow + 1);
-    //             }
-    //             break;
-                
-    //         case 'ArrowLeft':
-    //             if (this.inputElement.selectionStart === this.inputElement.selectionEnd) {
-    //                 e.preventDefault();
-    //                 this.finishEditing();
-    //                 newCol = Math.max(0, newCol - 1);
-    //             }
-    //             break;
-                
-    //         case 'ArrowRight':
-    //             if (this.inputElement.selectionStart === this.inputElement.selectionEnd) {
-    //                 e.preventDefault();
-    //                 this.finishEditing();
-    //                 newCol = Math.min(TOTAL_COLS - 1, newCol + 1);
-    //             }
-    //             break;
-                
-    //         default:
-    //             return; // Don't prevent default for other keys
-    //     }
 
-    //     // Update selection and potentially start editing
-    //     // this.selectorManager.cellSelector.setSelectedCell(newCol, newRow);
-    //     // if (e.key !== 'Escape') {
-    //     //     this.startEditing(newCol, newRow);
-    //     //     this.renderer.drawGrid();
-    //     // }
-    //     this.selectorManager.cellSelector.setSelectedCell(col, row);
-    //     this.startEditing(col,row);
-    //     this.renderer.drawGrid();
-        
-        
-    // }
+        switch (e.key) {
+            case 'Enter':
+                e.preventDefault();
+                this.finishEditing();
+                break;
+
+            case 'Escape':
+                e.preventDefault();
+                this.inputElement.value = this.cell_data.getCellValue(col, row) || '';
+                this.finishEditing();
+                return;
+
+            case 'Tab':
+                e.preventDefault();
+                this.finishEditing();
+                break;
+
+            case 'ArrowUp':
+                if (this.inputElement.selectionStart === this.inputElement.selectionEnd) {
+                    e.preventDefault();
+                    this.finishEditing();
+                    // newRow = Math.max(0, row - 1);
+                }
+                break;
+
+            case 'ArrowDown':
+                if (this.inputElement.selectionStart === this.inputElement.selectionEnd) {
+                    e.preventDefault();
+                    this.finishEditing();
+                    // newRow = Math.min(TOTAL_ROWS - 1, row + 1);
+                }
+                break;
+
+            case 'ArrowLeft':
+                if (this.inputElement.selectionStart === this.inputElement.selectionEnd) {
+                    e.preventDefault();
+                    this.finishEditing();
+                    // newCol = Math.max(0, col - 1);
+                }
+                break;
+
+            case 'ArrowRight':
+                if (this.inputElement.selectionStart === this.inputElement.selectionEnd) {
+                    e.preventDefault();
+                    this.finishEditing();
+                    // newCol = Math.min(TOTAL_COLS - 1, col + 1);
+                }
+                break;
+
+            default:
+                return; // Don't prevent default for other keys
+        }
+
+        // Update selection and potentially start editing
+        // if (newCol !== col || newRow !== row) {
+        //     this.selectorManager.cellSelector.setSelectedCell(newCol, newRow);
+        //     this.startEditing(newCol, newRow);
+        //     this.renderer.drawGrid();
+        // }
+    }
 
     isInputFocused() {
         return document.activeElement === this.inputElement;
@@ -381,16 +340,16 @@ export class CellEditor {
             if (!this.activeCell) {
                 const selected = this.selectorManager.cellSelector.getSelectedCell();
                 if (selected) {
-                   console.log('Restoring activeCell from selection');
+                    console.log('Restoring activeCell from selection');
                     this.activeCell = selected;
                 }
             }
         } else if (this.activeCell) {
-           // Only refocus if we're not in the middle of a selection
+            // Only refocus if we're not in the middle of a selection
             if (!this.selectorManager.cellSelector.isSelecting) {
                 this.inputElement.focus();
+            }
         }
-    }
 
-}
+    }
 }

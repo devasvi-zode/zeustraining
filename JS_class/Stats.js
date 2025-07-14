@@ -57,11 +57,15 @@ export class Stats {
         const sum = document.getElementById('sum');
         const avg = document.getElementById('avg');
 
-        count.innerText = `Count : ${this.calculate_count(rowStart, rowEnd, colStart, colEnd)}`;
-        min.innerText = `Minimum : ${this.calculate_min(rowStart, rowEnd, colStart, colEnd)}`;
-        max.innerText = `Maximum : ${this.calculate_max(rowStart, rowEnd, colStart, colEnd)}`;
-        sum.innerText = `Sum : ${this.calculate_sum(rowStart, rowEnd, colStart, colEnd)}`;
-        avg.innerText = `Average : ${this.calculate_avg(rowStart, rowEnd, colStart, colEnd)}`;
+        count.innerText = `${this.calculate_count(rowStart, rowEnd, colStart, colEnd)}`;
+        if (this.hasNumericData(rowStart, rowEnd, colStart, colEnd)) {
+            min.innerText = `${this.calculate_min(rowStart, rowEnd, colStart, colEnd)}`;
+            max.innerText = `${this.calculate_max(rowStart, rowEnd, colStart, colEnd)}`;
+            sum.innerText = `${this.calculate_sum(rowStart, rowEnd, colStart, colEnd)}`;
+            avg.innerText = `${this.calculate_avg(rowStart, rowEnd, colStart, colEnd)}`;
+        } else{
+            min.innerText = max.innerText = sum.innerText = avg.innerText = '';
+        }
     }
 
     /**
@@ -81,7 +85,7 @@ export class Stats {
                 }
             }
         }
-        return count === 0 ? '' : count;
+        return count === 0 ? '' : `Count : ${count}`;
     }
 
     /**
@@ -106,7 +110,7 @@ export class Stats {
                 }
             }
         }
-        return mini === Infinity ? '' : mini;
+        return mini === Infinity ? '' : `Minimum : ${mini}`;
     }
 
     /**
@@ -131,7 +135,7 @@ export class Stats {
                 }
             }
         }
-        return maxi === -1 ? '' : maxi;
+        return maxi === -1 ? '' : `Maximum : ${maxi}`;
     }
 
     /**
@@ -155,7 +159,7 @@ export class Stats {
                 }
             }
         
-        return sum === 0 ? '' : sum;
+        return sum === 0 ? '' : `Sum : ${sum}`;
     }
 
     /**
@@ -181,7 +185,26 @@ export class Stats {
                 }
             }
         
-        return sum === 0 ? '' : sum/n;
+        return sum === 0 ? '' : `Average : ${sum/n}`;
+    }
+
+    /**
+    * Checks whether the selected range has any numeric data.
+    * @param {number} rowStart
+    * @param {number} rowEnd
+    * @param {number} colStart
+    * @param {number} colEnd
+    * @returns {boolean} - True if there's at least one numeric value, false otherwise.
+    */
+    hasNumericData(rowStart, rowEnd, colStart, colEnd) {
+        for (let row = rowStart; row <= rowEnd; row++) {
+            for (let col = colStart; col <= colEnd; col++) {
+                const value = this.dataStore.getCellValue(col, row);
+                const num = parseFloat(value);
+                if (!isNaN(num)) return true;
+            }
+        }
+        return false;
     }
 
 }

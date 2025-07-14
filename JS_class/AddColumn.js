@@ -1,16 +1,16 @@
-import { AddRowCommand } from "./commands.js";
-import { gridConfig , CELL_HEIGHT} from "./config.js";
+import { AddColumnCommand } from "./commands.js";
+import { gridConfig , CELL_WIDTH} from "./config.js";
 
 /**
- * Class representing the functionality to add rows to a grid
+ * Class representing the functionality to add columns to a grid
  */
-export class AddRow {
+export class AddColumn {
     /**
-     * Initializes the AddRow with dimensions, rendere, a command manager and button.
+     * Initializes the AddColumn with dimensions, rendere, a command manager and button.
      * @param {DimensionsManager} dimensionsManager - Manages the dimensions of the grid.
      * @param {Renderer} renderer - Responsible for rendering the grid.
      * @param {SelectorManager} selectorManager - Manages selection state (rows, columns, cells).
-     * @param {HTMLElement} buttonId - the button element that will trigger row adding
+     * @param {HTMLElement} buttonId - the button element that will trigger column adding
      * @param {cell_data} cellData - The data structure holding cell value.
      * @param {CommandManager} commandManager - Manages undoable commands.
      */
@@ -18,7 +18,7 @@ export class AddRow {
         this.dimensions = dimensionsManager;
         this.renderer = renderer;
         this.selectorManager = selectorManager;
-        this.addRowButton = buttonId;
+        this.addColumnButton = buttonId;
         this.cellData = cellData;
         this.commandManager = commandManager;
 
@@ -26,19 +26,19 @@ export class AddRow {
     }
 
     /**
-     * Inintializes event listners for the add row button
+     * Inintializes event listners for the add column button
      */
     initEventListeners() {
-        this.addRowButton.addEventListener('click', () => {
-            this.addRows();
+        this.addColumnButton.addEventListener('click', () => {
+            this.addColumns();
         });
     }
 
     /**
-     * Determines the number of row to add and the position to insert them based on the current selection
+     * Determines the number of column to add and the position to insert them based on the current selection
      * Creates and executes an AddRowCommand to perform the operation.
      */
-    addRows(){
+    addColumns(){
         const activeType = this.selectorManager.lastSelectionType;
         let n, insertAt;
 
@@ -46,26 +46,26 @@ export class AddRow {
             n = 1;
             insertAt = 0;
         } else {
-            const {rowSelector, cellSelector} = this.selectorManager;
+            const {columnSelector, cellSelector} = this.selectorManager;
             const sortRange = (a,b) => [Math.min(a,b), Math.max(a,b)];
 
-            if(activeType === 'row') {
-                const [rowStart, rowEnd] = sortRange(rowSelector.firstSelectedRow, rowSelector.lastSelectedRow);
-                n = rowEnd - rowStart + 1;
-                insertAt = rowStart;
+            if(activeType === 'column') {
+                const [columnStart, columnEnd] = sortRange(columnSelector.firstSelectedColumn, columnSelector.lastSelectedColumn);
+                n = columnEnd - columnStart + 1;
+                insertAt = columnStart;
 
             } else if(activeType === 'cell') {
                 const { selectionStart, selectionEnd } = cellSelector;
-                const [rowStart, rowEnd] = sortRange(selectionStart.row, selectionEnd.row);
-                n = rowEnd - rowStart + 1;
-                insertAt = rowStart;
-            } else if(activeType === 'column'){
+                const [columnStart, columnEnd] = sortRange(selectionStart.col, selectionEnd.col);
+                n = columnEnd - columnStart + 1;
+                insertAt = columnStart;
+            } else if(activeType === 'row'){
                 return;
             }
         }
 
         //Create and execute the command
-        const command = new AddRowCommand(
+        const command = new AddColumnCommand(
             this.dimensions,
             this.cellData,
             n,
@@ -78,21 +78,21 @@ export class AddRow {
     }
 
     /**
-     * Adds a specified number of rows at a given index in the grid.
+     * Adds a specified number of columns at a given index in the grid.
      * Updates dimesnions, shifts cell data, and redraws the grid.
-     * @param {number} n - Number of rows to add
-     * @param {number} insertAt - Index at which to insert the new rows.
+     * @param {number} n - Number of columns to add
+     * @param {number} insertAt - Index at which to insert the new columns.
      */
     add(n, insertAt){
-        console.log(`Add row button pressed`);
-        gridConfig.TOTAL_ROWS += n;
+        console.log(`Add Column button pressed`);
+        gridConfig.TOTAL_COLS += n;
         for(let i = 0; i < n; i++) {
             console.log(`insetAt is ${insertAt}`);
-            this.dimensions.rowHeights.splice( insertAt , 0, CELL_HEIGHT );
+            this.dimensions.colWidths.splice( insertAt , 0, CELL_WIDTH );
         }
-        this.cellData.shiftRowsDown(insertAt, n);
+        this.cellData.shiftColumnsRight(insertAt, n);
         this.dimensions.updateLayout();
         this.renderer.drawGrid();
-        console.log(`total rows are ${gridConfig.TOTAL_ROWS}`);
+        console.log(`total Columns are ${gridConfig.TOTAL_COLS}`);
     }
 }

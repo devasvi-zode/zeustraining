@@ -100,7 +100,7 @@ export class RowResizing {
                 this.originalRowHeight = this.dimensions.rowHeights[row];
 
                 //Store original Height of all selected rowumns if multiple are selected
-                const selected = this.selectorManager.rowSelector.selectedrows;
+                const selected = this.selectorManager.rowSelector.selectedRows;
                 const resizingMultiple = this.selectorManager.lastSelectionType === 'row' &&
                     selected.has(row) && selected.size > 1;
                 this.originalHeights.clear();
@@ -128,19 +128,19 @@ export class RowResizing {
         //when row is being resized
         if ( this.dimensions.resizeState.row !== null ) {
             const deltaY = e.clientY - this.dimensions.resizeState.startY;
-            const newHeights = Math.max(20, this.dimensions.rowHeights[this.dimensions.resizeState.row] + deltaY);
+            const newHeight = Math.max(20, this.dimensions.rowHeights[this.dimensions.resizeState.row] + deltaY);
             
-            const selected = this.selectorManager.rowSelector.selectedrows;
+            const selected = this.selectorManager.rowSelector.selectedRows;
             const resizingMultiple = this.selectorManager.lastSelectionType === 'row' && 
                 selected.has(this.currentResizeRow) && selected.size>1;
             if(resizingMultiple) {
                 //Resize all selected rowumns
-                for (const c of selected) {
-                    this.dimensions.rowlHeights[c] = newHeights;
+                for (const r of selected) {
+                    this.dimensions.rowHeights[r] = newHeight;
                 }
             } else{
                 //Resize just the current rowumn
-                this.dimensions.rowlHeights[this.currentResizeRow] = newHeights;
+                this.dimensions.rowHeights[this.currentResizeRow] = newHeight;
             }
             this.dimensions.resizeState.startY = e.clientY;
             this.dimensions.updateLayout();
@@ -154,9 +154,9 @@ export class RowResizing {
             const row = this.currentResizeRow;
             const finalHeight = this.dimensions.rowHeights[row];
 
-            const selected = this.selectorManager.rowSelector.selectedrows;
+            const selected = this.selectorManager.rowSelector.selectedRows;
             const resizingMultiple = this.selectorManager.lastSelectionType === 'row' && 
-                selected.has(this.currentResizeRow) && selected.size>1;
+                selected.has(row) && selected.size > 1;
             
             const newHeights = new Map();
             const oldHeights = new Map();
@@ -169,8 +169,8 @@ export class RowResizing {
                 }
             } else {
                 // Just record for the single rowumn
-                newHeights.set(row, finalWidth);
-                oldHeights.set(row, this.originalrowWidth);
+                newHeights.set(row, finalHeight);
+                oldHeights.set(row, this.originalRowHeight);
             }
 
             // Only create command if Heights actually changed

@@ -1,3 +1,4 @@
+import { gridConfig, CELL_HEIGHT, CELL_WIDTH } from "./config.js";
 /**
  * Represents a command to resize a column.
  * Supports execution and undoing via the Command pattern.
@@ -48,8 +49,8 @@ export class ResizedRowCommand {
     /**
      * 
      * @param {DimensionsManager} dimensionsManager - Manages dimensions of the grid.
-     * @param {Number} row - The index of the row to be resized.
-     * @param {Array} newHeight - The new height to apply to the row.
+     * @param {Map<number, number>} newHeights - Map of rowIndex → newWidth
+     * @param {Map<number, number>} oldHeights - Map of rowIndex → oldWidth
      */
     constructor(dimensionsManager,  newHeights, oldHeights){
         this.dimensions = dimensionsManager;
@@ -62,8 +63,8 @@ export class ResizedRowCommand {
      * and updating the layout.
      */
     execute(){
-        for (const [col, width] of this.newHeights.entries()) {
-            this.dimensions.colWidths[col] = width;
+        for (const [row, height] of this.newHeights.entries()) {
+            this.dimensions.rowHeights[row] = height;
         }
         this.dimensions.updateLayout();
     }
@@ -73,8 +74,8 @@ export class ResizedRowCommand {
      * and updating the layout
      */
     undo(){
-        for (const [col, width] of this.oldHeights.entries()) {
-            this.dimensions.colWidths[col] = width;
+        for (const [row, height] of this.oldHeights.entries()) {
+            this.dimensions.rowHeights[row] = height;
         }
         this.dimensions.updateLayout();
     }
@@ -149,5 +150,97 @@ export class ColumnSelectCommand {
      */
     undo(){
         this.selectionManager.selectColumn(this.prevSelection);
+    }
+}
+
+export class AddRowCommand {
+    /**
+     * Represents a command for adding rows with undo/redo support
+     * @param {DimensionsManager} dimensionsManager 
+     * @param {cell_data} cellData 
+     * @param {number} n - Number of rows to add
+     * @param {number} insertAt - Position to insert rows
+     * @param {Function} drawCallback - Function to redraw the grid
+     */
+    constructor(dimensionsManager, cellData, n, insertAt, drawCallback) {
+        this.dimensions = dimensionsManager;
+        this.cellData = cellData;
+        this.n = n;
+        this.insertAt = insertAt;
+        this.drawCallback = drawCallback;
+        
+        // Store the original state for undo
+        this.originalRowHeights = [...dimensionsManager.rowHeights];
+    }
+
+    execute() {
+        // Add rows
+        gridConfig.TOTAL_ROWS += this.n;
+        for (let i = 0; i < this.n; i++) {
+            this.dimensions.rowHeights.splice(this.insertAt, 0, CELL_HEIGHT);
+        }
+        
+        // Shift cell data down
+        this.cellData.shiftRowsDown(this.insertAt, this.n);
+        
+        this.dimensions.updateLayout();
+        this.drawCallback();
+    }
+
+    undo() {
+        // Remove the added rows
+        gridConfig.TOTAL_ROWS -= this.n;
+        this.dimensions.rowHeights.splice(this.insertAt, this.n);
+        
+        // Shift cell data back up
+        this.cellData.shiftRowsUp(this.insertAt, this.n);
+        
+        // Restore original row heights
+        this.dimensions.rowHeights = [...this.originalRowHeights];
+        
+        this.dimensions.updateLayout();
+        this.drawCallback();
+    }
+}
+
+export class AddColumnCommand {
+    constructor(dimensionsManager, cellData, n, insertAt, drawCallback) {
+        this.dimensions = dimensionsManager;
+        this.cellData = cellData;
+        this.n = n;
+        this.insertAt = insertAt;
+        this.drawCallback = drawCallback;
+        
+        // Store the original state for undo
+        this.originalColumnWidths = [...dimensionsManager.colWidths];
+    }
+
+    execute() {
+        // Add columns
+        gridConfig.TOTAL_COLS += this.n;
+        for (let i = 0; i < this.n; i++) {
+            this.dimensions.colWidths.splice(this.insertAt, 0, CELL_WIDTH);
+        }
+        
+        // Shift cell data down
+        this.cellData.shiftColumnsRight(this.insertAt, this.n);
+        
+        this.dimensions.updateLayout();
+        this.drawCallback();
+    }
+
+    undo() {
+        // Remove the added rows
+        gridConfig.TOTAL_COLS -= this.n;
+        this.dimensions.colWidths.splice(this.insertAt, this.n);
+        
+        // Shift cell data back up
+        this.cellData.shiftColumnsLeft(this.insertAt, this.n);
+        
+        // Restore original row heights
+        this.dimensions.colWidths = [...this.originalColumnWidths];
+        
+        this.dimensions.updateLayout();
+        this.drawCallback();
     }
 }

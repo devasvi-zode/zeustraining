@@ -112,6 +112,7 @@ export class RowSelector {
         if (row !== null && row !== this.lastSelectedRow) {
             this.selectRowRange(this.dragStartRow, row);
             this.lastSelectedRow = row;
+            this.selectorManager.stats.updateStats();
             this.renderer.drawGrid();
         }
     }

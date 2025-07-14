@@ -7,6 +7,7 @@ import { CommandManager } from './CommandManager.js';
 import { JsonGridLoader } from './JsonGridLoader.js';
 import { SelectorManager } from "./SelectorManager.js";
 import { AddRow } from "./AddRow.js";
+import { AddColumn } from "./AddColumn.js";
 import { Stats } from './Stats.js';
 import { canvas } from "./dom-elements.js";
 
@@ -51,7 +52,23 @@ export class Grid {
         );
         this.SelectorManager.stats = this.stats;
 
-        //this.AddRow = new AddRow(this.dimensions, this.renderer, this.SelectorManager, add_row);
+        this.AddRow = new AddRow(
+            this.dimensions, 
+            this.renderer, 
+            this.SelectorManager, 
+            add_row, 
+            this.cell_data, 
+            this.commandManager
+        );
+
+        this.AddColumn = new AddColumn(
+            this.dimensions, 
+            this.renderer, 
+            this.SelectorManager, 
+            add_column, 
+            this.cell_data, 
+            this.commandManager
+        );
 
         this.init();
         this.initEventListneres();

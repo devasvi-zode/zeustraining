@@ -26,6 +26,9 @@ export class CellSelector {
         this.handleMouseDown = this.handleMouseDown.bind(this);
         this.handleMouseMove = this.handleMouseMove.bind(this);
         this.handleMouseUp = this.handleMouseUp.bind(this);
+        this.handleKeyDown = this.handleKeyDown.bind(this);
+
+        document.addEventListener('keydown', this.handleKeyDown);
     }
     
     /**
@@ -83,7 +86,7 @@ export class CellSelector {
 
         //Keep the original cell as the selected cell even when the dragging starts
         this.selectedCell = this.selectionStart;
-
+        this.manager.stats.updateStats();
         // Trigger redraw (you'll need to modify your renderer)
         this.renderer.drawGrid();
     }
@@ -120,6 +123,14 @@ export class CellSelector {
         this.selectedCell = { col, row };
         this.selectionStart = { col, row };
         this.selectionEnd = { col, row };
+        this.selectedRange = null; // Clear any range selection
+        this.isSelecting = false;
+        
+        // Update last active cell in manager
+        if (this.manager) {
+            this.manager.lastActiveCell = { col, row };
+            this.manager.lastSelectionType = 'cell';
+        }
     }
     /**
      * 
@@ -241,5 +252,160 @@ export class CellSelector {
             else left = mid + 1;
         }
         return null;
+    }
+
+    /**
+     * Handles keyboard navigation for cell selection
+     * @param {KeyboardEvent} e - The keyboard event
+     */
+    handleKeyDown(e) {
+        // console.log('[CellSelector] Key pressed:', e.key);
+        // Only handle arrow keys when not editing and we have a selected cell
+        if (!this.selectedCell || this.manager.isEditing) return;
+        
+        // Check if any input elements are focused
+        const activeElement = document.activeElement;
+        if (activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA')) {
+            return;
+        }
+
+        
+        let { col, row } = this.selectedCell;
+        let newCol = col;
+        let newRow = row;
+        let handled = false;
+        
+        switch (e.key) {
+            case 'ArrowUp':
+                if (row > 1) {
+                    newRow = row - 1;
+                    handled = true;
+                }
+                break;
+                
+            case 'ArrowDown':
+                if (row < gridConfig.TOTAL_ROWS - 1) {
+                    newRow = row + 1;
+                    handled = true;
+                }
+                break;
+                
+            case 'ArrowLeft':
+                if (col > 1) {
+                    newCol = col - 1;
+                    handled = true;
+                }
+                break;
+                
+            case 'ArrowRight':
+                if (col < gridConfig.TOTAL_COLS - 1) {
+                    newCol = col + 1;
+                    handled = true;
+                }
+                break;
+                
+            case 'Home':
+                if (e.ctrlKey) {
+                    // Ctrl+Home: Go to cell A1
+                    newCol = 1;
+                    newRow = 1;
+                } else {
+                    // Home: Go to beginning of row
+                    newCol = 1;
+                }
+                handled = true;
+                break;
+                
+            case 'End':
+                if (e.ctrlKey) {
+                    // Ctrl+End: Go to last cell with data or bottom-right corner
+                    newCol = gridConfig.TOTAL_COLS - 1;
+                    newRow = gridConfig.TOTAL_ROWS - 1;
+                } else {
+                    // End: Go to end of row
+                    newCol = gridConfig.TOTAL_COLS - 1;
+                }
+                handled = true;
+                break;
+                
+            case 'PageUp':
+                // Move up by visible rows (approximately)
+                newRow = Math.max(1, row - 10);
+                handled = true;
+                break;
+                
+            case 'PageDown':
+                // Move down by visible rows (approximately)
+                newRow = Math.min(gridConfig.TOTAL_ROWS - 1, row + 10);
+                handled = true;
+                break;
+        }
+        
+        if (handled) {
+            e.preventDefault();
+            
+            // Handle range selection with Shift key
+            if (e.shiftKey && this.selectionStart) {
+                this.selectionEnd = { col: newCol, row: newRow };
+                this.selectedRange = this.normalizeRange(this.selectionStart, this.selectionEnd);
+                this.selectedCell = { col: newCol, row: newRow };
+            } else {
+                // Single cell selection
+                this.setSelectedCell(newCol, newRow);
+            }
+            
+            // Ensure the new cell is visible (you may need to implement scrolling)
+            this.ensureCellVisible(newCol, newRow);
+            
+            // Update manager state
+            this.manager.lastActiveCell = { col: newCol, row: newRow };
+            this.manager.lastSelectionType = 'cell';
+            
+            // Redraw the grid
+            this.renderer.drawGrid();
+        }
+    }
+    
+    /**
+     * Ensures the specified cell is visible in the viewport
+     * @param {number} col - Column index
+     * @param {number} row - Row index
+     */
+    ensureCellVisible(col, row) {
+        // This is a basic implementation - you may need to adjust based on your scrolling logic
+        const cellX = this.dimensions.getColX(col);
+        const cellY = this.dimensions.getRowY(row);
+        const cellWidth = this.dimensions.colWidths[col];
+        const cellHeight = this.dimensions.rowHeights[row];
+        
+        // Get viewport bounds (you'll need to adjust these based on your canvas size)
+        const viewportWidth = canvas.width;
+        const viewportHeight = canvas.height;
+        
+        // Calculate visible area considering current offsets
+        const visibleLeft = this.dimensions.offsets.x;
+        const visibleTop = this.dimensions.offsets.y;
+        const visibleRight = visibleLeft + viewportWidth;
+        const visibleBottom = visibleTop + viewportHeight;
+        
+        // Check if cell is outside visible area and adjust offsets
+        if (cellX < visibleLeft) {
+            this.dimensions.offsets.x = cellX;
+        } else if (cellX + cellWidth > visibleRight) {
+            this.dimensions.offsets.x = cellX + cellWidth - viewportWidth;
+        }
+        
+        if (cellY < visibleTop) {
+            this.dimensions.offsets.y = cellY;
+        } else if (cellY + cellHeight > visibleBottom) {
+            this.dimensions.offsets.y = cellY + cellHeight - viewportHeight;
+        }
+    }
+
+    /**
+     * Cleanup method to remove event listeners
+     */
+    destroy() {
+        document.removeEventListener('keydown', this.handleKeyDown);
     }
 }

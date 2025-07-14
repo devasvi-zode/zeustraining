@@ -1,5 +1,5 @@
 import { ctx, canvas } from './dom-elements.js';
-import { CELL_HEIGHT, TOTAL_COLS , gridConfig} from './config.js';
+import { CELL_HEIGHT , gridConfig} from './config.js';
 
 /**
  * Manages column selection interactions within a grid.
@@ -114,9 +114,12 @@ export class ColumnSelector {
         if (col !== null && col !== this.lastSelectedColumn) {
             this.selectColumnRange(this.dragStartColumn, col);
             this.lastSelectedColumn = col;
+            // this.selectorManager.stats.updateStats();
             this.renderer.drawGrid();
         }
     }
+
+
 
     /**
      * Handles mouse up event to finalize column selection.
